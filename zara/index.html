@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="format-detection" content="telephone=no,email=no,address=no,date=no">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Zara's Daily Log</title>
@@ -135,7 +136,7 @@ body{background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.5p
 .topbar .btn{white-space:nowrap;background:var(--surface);border-color:transparent;border-radius:999px;box-shadow:0 2px 6px rgba(76,56,140,.08)}
 .hero-art{position:absolute!important;z-index:0!important;right:0;bottom:0;width:230px;height:auto;pointer-events:none}
 @media (min-width:561px){.topbar{min-height:150px;padding-right:250px}.topbar .tb,.topbar>.btn{position:absolute;top:16px;right:16px}}
-@media (max-width:560px){.topbar{padding-bottom:118px}.hero-art{width:200px;right:auto;left:50%;transform:translateX(-30%)}}
+@media (max-width:560px){.topbar{padding-bottom:96px}.hero-art{width:170px;right:4px}}
 .garden{display:block;width:100%;height:auto;margin-top:-6px}
 h1,h2,h3{font-family:var(--display);font-weight:700}
 .topbar h1{font-size:1.95rem;font-weight:700}
@@ -172,6 +173,36 @@ body.famview #app>:not(.topbar):not(#family){display:none!important}
   .side.l{left:max(8px,calc((100vw - 760px)/4 - 140px))}
   .side.r{right:max(8px,calc((100vw - 760px)/4 - 140px))}
   .wrap{position:relative;z-index:1}
+}
+
+/* ---- Mobile fixes ---- */
+.topbar::before{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;z-index:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 16'%3E%3Cpath d='M0 16V7q15-8 30 0t30 0v9z' fill='%23bfe8c9'/%3E%3C/svg%3E") repeat-x left bottom/60px 16px}
+input,select,textarea{font-size:16px}
+.field,.inline .field,.rcustom .field,.row .field{min-width:0}
+input[type=date],input[type=time],input[type=datetime-local]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;min-height:44px;box-sizing:border-box;text-align:left;background-color:var(--bg);color:var(--fg)}
+input::-webkit-date-and-time-value{text-align:left}
+.dayc input[type=date]{width:auto;min-height:36px}
+html,body{overflow-x:hidden}
+@media (max-width:560px){
+  .wrap{gap:16px}
+  .topbar{padding:18px 16px 96px}
+  .topbar h1{font-size:1.6rem}
+  .bday{flex-direction:column;align-items:flex-start;gap:6px}
+  .inline{flex-direction:column;align-items:stretch}
+  .inline .field{flex:none}
+  .inline .btn,.inline>button{width:100%}
+  .row .field:first-child{flex-basis:100%}
+  .panel{padding:14px}
+  .members li{flex-direction:column;align-items:flex-start;gap:8px;padding:12px 0}
+  .members .who{flex:none;width:100%}
+  .members .acts .btn{padding:6px 14px;font-size:.9rem}
+  .members li>.btn{align-self:flex-start;padding:6px 14px;font-size:.9rem}
+  .milk-top{flex-direction:column;align-items:flex-start}
+  .tl li{grid-template-columns:auto 1fr;row-gap:2px}
+  .tl li .acts{grid-column:2;justify-content:flex-start;margin-left:-6px}
+  .actions{flex-direction:column-reverse}
+  .actions .btn{width:100%;min-height:44px}
 }
 </style>
 </head>
