@@ -1,0 +1,10 @@
+# Real settings and passwords — never commit
+config.php
+**/config.php
+
+# Local / debug helpers
+mailtest.php
+*.zip
+*.log
+.DS_Store
+Thumbs.db

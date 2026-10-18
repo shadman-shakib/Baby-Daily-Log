@@ -1,0 +1,12 @@
+Options -Indexes
+
+# Always use HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Keep config, SQL and docs private
+<FilesMatch "(^config(\.example)?\.php$|\.sql$|\.md$)">
+  Require all denied
+</FilesMatch>
+RedirectMatch 404 /(\.git|migrations)(/|$)

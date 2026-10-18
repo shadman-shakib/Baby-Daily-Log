@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Baby Daily Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Layout: one phone-first column — quick-log buttons on top, today's summary, 7-day chart, then the timeline */
+:root{
+  --bg:#f5f3fc; --surface:#ffffff; --fg:#2b2540; --muted:#7a7392; --line:#e9e5f5;
+  --feed:#4f86e8; --feed-soft:#e4edff; --diaper:#ee8a4f; --diaper-soft:#ffeadd;
+  --warn:#e0585b; --ok:#2fa57d; --weight:#2f9e86; --weight-soft:#dcf5ee; --pump:#9a63d6; --pump-soft:#f1e7fd;
+  --hero1:#e9e4ff; --hero2:#ffe9e1; --moon:#ffd98a; --star:#b9a6ff; --cloud:#ffffff; --shadow:0 8px 24px rgba(76,56,140,.08);
+  --dot:rgba(154,128,230,.10);
+  --display:"Quicksand","Nunito",ui-rounded,system-ui,sans-serif;
+  --body:"Nunito",ui-rounded,system-ui,sans-serif;
+  --mono:"Nunito",ui-rounded,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16132a; --surface:#221d3b; --fg:#efeaff; --muted:#a49cc4; --line:#352e57;
+  --feed:#86aaf5; --feed-soft:#25325a; --diaper:#f6a97a; --diaper-soft:#45302a;
+  --warn:#ff8a8c; --ok:#6fd4ad; --weight:#6fd0b8; --weight-soft:#1e3d3a; --pump:#c39cf0; --pump-soft:#382a59;
+  --hero1:#2c2558; --hero2:#3d2a4f; --moon:#ffd98a; --star:#8f7fe0; --cloud:#3b3466; --shadow:0 8px 24px rgba(0,0,0,.25);
+  --dot:rgba(185,166,255,.08); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16132a; --surface:#221d3b; --fg:#efeaff; --muted:#a49cc4; --line:#352e57;
+  --feed:#86aaf5; --feed-soft:#25325a; --diaper:#f6a97a; --diaper-soft:#45302a;
+  --warn:#ff8a8c; --ok:#6fd4ad; --weight:#6fd0b8; --weight-soft:#1e3d3a; --pump:#c39cf0; --pump-soft:#382a59;
+  --hero1:#2c2558; --hero2:#3d2a4f; --moon:#ffd98a; --star:#8f7fe0; --cloud:#3b3466; --shadow:0 8px 24px rgba(0,0,0,.25);
+  --dot:rgba(185,166,255,.08); color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:720px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1{font-family:var(--display);font-size:1.9rem;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-size:1.1rem;margin:0}
+.sub{color:var(--muted);margin:2px 0 0}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--feed);outline-offset:2px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:640px){.quick{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.qbtn small{display:none}.qbtn{padding:14px 12px}}
+.qbtn.pump{background:var(--pump);color:var(--surface)}
+.chip.pump{background:var(--pump-soft);color:var(--pump)}
+.qbtn.weight{background:var(--weight);color:var(--surface)}
+.chip.weight{background:var(--weight-soft);color:var(--weight)}
+.wunit{display:flex;gap:6px;align-items:flex-end}
+.wunit input{flex:1;min-width:0}
+.wunit select{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:9px 8px;font:inherit}
+.qbtn{border:none;border-radius:14px;padding:16px 14px;text-align:left;font-weight:600;font-size:1rem;display:flex;flex-direction:column;gap:2px}
+.qbtn small{font-weight:400;opacity:.8;font-size:.8rem}
+.qbtn.feed{background:var(--feed);color:var(--surface)}
+.qbtn.diaper{background:var(--diaper);color:var(--surface)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:7px 13px;font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px;min-width:0}
+.panel>.field,.vstack>.field,.fam section>.field,#fgStep2>.field{flex:none}
+.field input{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:9px 10px;font:inherit;width:100%;box-sizing:border-box}
+.actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:10px;padding:9px 16px}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stat{background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:4px}
+.stat .v{font-family:var(--display);font-size:1.6rem;font-weight:700;line-height:1.1}
+.stat .d{color:var(--muted);font-size:.82rem}
+.since.late .v{color:var(--warn)}
+.bday{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;margin-top:6px}
+.bday .age{font-family:var(--display);font-weight:700;font-size:1.05rem;color:var(--fg)}
+.bday .born{color:var(--muted);font-size:.88rem}
+.alert{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--warn);color:var(--surface);border-radius:14px;padding:12px 16px;font-weight:600}
+.alert small{display:block;font-weight:400;opacity:.9}
+.alert button{border:none;background:var(--surface);color:var(--warn);border-radius:10px;padding:8px 14px;font-weight:600}
+.stat.late .v{color:var(--warn)}
+.chart{overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:320px;height:auto}
+.legend{display:flex;gap:14px;font-size:.82rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.milk-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.mstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.mstat{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mstat .v{font-family:var(--display);font-size:1.35rem;font-weight:700;line-height:1.15}
+.mstat .v small{font-family:var(--body);font-size:.8rem;font-weight:500;color:var(--muted);margin-left:2px}
+.mnote{color:var(--muted);font-size:.8rem;margin:0}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dayc{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.dayc input{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:4px 8px;font:inherit;font-size:.85rem}
+.chg-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.chg-head .big{font-family:var(--display);font-size:1.6rem;font-weight:700}
+.chg-head .big.up{color:var(--ok)}.chg-head .big.down{color:var(--warn)}
+.chg-head .sub2{color:var(--muted);font-size:.88rem}
+.rcustom{display:flex;gap:10px;flex-wrap:wrap}
+.rcustom .field{flex:1 1 140px}
+.rcustom input{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:9px 10px;font:inherit;width:100%;box-sizing:border-box}
+.daynav button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:6px 12px}
+.daynav button:disabled{opacity:.4;cursor:default}
+ul.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.tl li:last-child{border-bottom:none}
+.tl .t{font-family:var(--mono);font-size:.88rem;color:var(--muted);white-space:nowrap;min-width:72px}
+.tl .what{min-width:0;display:flex;flex-direction:column;gap:1px}
+.tl .what b{font-weight:600}
+.tl .what em{font-style:normal;color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
+.chip{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;margin-right:6px;vertical-align:1px}
+.chip.feed{background:var(--feed-soft);color:var(--feed)}
+.chip.diaper{background:var(--diaper-soft);color:var(--diaper)}
+.del,.edit{border:none;background:none;color:var(--muted);font-size:.82rem;padding:6px}
+.edit{color:var(--feed)}
+.acts{display:flex;gap:2px;align-items:center}
+.del.armed{color:var(--warn);font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:22px 8px}
+.notice{background:var(--diaper-soft);color:var(--fg);border-radius:10px;padding:10px 12px;font-size:.88rem}
+@media (prefers-reduced-motion:no-preference){.qbtn{transition:transform .12s}.qbtn:active{transform:scale(.97)}}
+[hidden]{display:none!important}
+body{margin:0}
+.login{min-height:70vh;display:flex;align-items:center;justify-content:center}
+.login form{width:100%;max-width:340px}
+.err{color:var(--warn);font-size:.88rem;margin:0}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.topbar .btn{padding:6px 12px;font-size:.85rem}
+.topbar .tb{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.auth{min-height:70vh;display:flex;align-items:center;justify-content:center}
+.auth .panel{width:100%;max-width:380px}
+.ok{color:var(--ok);font-size:.88rem;margin:0}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+.linkbtn{border:none;background:none;color:var(--feed);padding:0;font:inherit;font-size:.88rem;text-decoration:underline;cursor:pointer;justify-self:start;align-self:flex-start}
+.codein{font-family:var(--mono);font-size:1.5rem;letter-spacing:.35em;text-align:center}
+.babypick{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:6px 10px;font:inherit;max-width:100%}
+.fam{display:flex;flex-direction:column;gap:18px}
+.fam section{display:flex;flex-direction:column;gap:10px;padding-top:16px;border-top:1px solid var(--line)}
+.fam section:first-of-type{border-top:none;padding-top:0}
+.fam h3{margin:0;font-family:var(--display);font-size:1rem}
+.vstack{display:flex;flex-direction:column;gap:12px}
+.members{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.members li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.members li:last-child{border-bottom:none}
+.members .who{min-width:0;overflow-wrap:anywhere;flex:1 1 160px}
+.members .who small{display:block;color:var(--muted)}
+.members .acts{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--diaper-soft);color:var(--diaper);margin-left:6px}
+.code{font-family:var(--mono);font-size:1.3rem;letter-spacing:.1em;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;text-align:center;user-select:all;overflow-wrap:anywhere}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn.danger.armed{background:var(--warn);color:var(--surface)}
+.inline{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.inline .field{flex:1 1 150px}
+.check{display:flex;gap:8px;align-items:center}
+
+/* ---- Nursery theme ---- */
+body{background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.5px,transparent 1.6px);background-size:26px 26px}
+.num{font-variant-numeric:tabular-nums;font-weight:700}
+.panel,.stats{border-radius:22px;border-color:var(--line);box-shadow:var(--shadow)}
+.stats{background:var(--line)}
+.topbar{position:relative;overflow:hidden;border-radius:26px;padding:20px 20px 22px;background:linear-gradient(135deg,var(--hero1),var(--hero2));box-shadow:var(--shadow)}
+.topbar>*{position:relative;z-index:1}
+.topbar h1{font-size:2rem}
+.topbar .btn{white-space:nowrap;background:var(--surface);border-color:transparent;border-radius:999px;box-shadow:0 2px 6px rgba(76,56,140,.08)}
+.hero-art{position:absolute!important;z-index:0!important;right:0;bottom:0;width:230px;height:auto;pointer-events:none}
+@media (min-width:561px){.topbar{min-height:150px;padding-right:250px}.topbar .tb,.topbar>.btn{position:absolute;top:16px;right:16px}}
+@media (max-width:560px){.topbar{padding-bottom:118px}.hero-art{width:200px;right:auto;left:50%;transform:translateX(-30%)}}
+.garden{display:block;width:100%;height:auto;margin-top:-6px}
+h1,h2,h3{font-family:var(--display);font-weight:700}
+.topbar h1{font-size:1.95rem;font-weight:700}
+.bday .age{font-family:var(--display);font-weight:700}
+.stat .v{font-family:var(--display);font-weight:700}
+.qbtn{font-weight:700}
+.label{font-weight:700}
+body{font-weight:400}
+.bday{margin-top:10px}
+.bday .age{background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.95rem;box-shadow:0 2px 6px rgba(76,56,140,.06)}
+.bday .born{font-size:.85rem}
+.qbtn{border-radius:20px;padding:16px;min-height:86px;display:flex;flex-direction:column;justify-content:space-between;gap:6px;font-family:var(--display);font-weight:600;font-size:1.05rem;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.qbtn .ico{width:30px;height:30px;border-radius:12px;background:rgba(255,255,255,.25);display:grid;place-items:center}
+.qbtn .ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.qbtn small{font-family:var(--body);font-weight:600}
+.qbtn.feed{background:linear-gradient(140deg,var(--feed),color-mix(in srgb,var(--feed) 70%,#9fd0ff))}
+.qbtn.diaper{background:linear-gradient(140deg,var(--diaper),color-mix(in srgb,var(--diaper) 70%,#ffc38f))}
+.qbtn.pump{background:linear-gradient(140deg,var(--pump),color-mix(in srgb,var(--pump) 70%,#f0a8e8))}
+.qbtn.weight{background:linear-gradient(140deg,var(--weight),color-mix(in srgb,var(--weight) 70%,#9ae6c9))}
+@media (prefers-reduced-motion:no-preference){.qbtn{transition:transform .15s ease,box-shadow .15s ease}.qbtn:hover{transform:translateY(-2px)}.qbtn:active{transform:scale(.97)}}
+.seg button{border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--surface)}
+.btn{border-radius:12px}
+.btn.primary{background:linear-gradient(135deg,var(--pump),var(--feed));border:none;color:#fff}
+.field input,.rcustom input,.babypick,.dayc input,.wunit select{border-radius:12px}
+.chip{border-radius:999px}
+.tl li{border-bottom-style:dashed}
+.alert{border-radius:20px;background:linear-gradient(135deg,var(--warn),color-mix(in srgb,var(--warn) 75%,var(--diaper)))}
+.backbtn{border:none;background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 16px;font-weight:700;box-shadow:var(--shadow);align-self:flex-start;display:inline-flex;gap:6px;align-items:center}
+body.famview #app>:not(.topbar):not(#family){display:none!important}
+.side{display:none}
+@media (min-width:1100px){
+  .side{display:block;position:fixed;bottom:0;height:100vh;width:min(280px,calc((100vw - 760px)/2 - 24px));z-index:0;pointer-events:none}
+  .side.l{left:max(8px,calc((100vw - 760px)/4 - 140px))}
+  .side.r{right:max(8px,calc((100vw - 760px)/4 - 140px))}
+  .wrap{position:relative;z-index:1}
+}
+</style>
+</head>
+<body>
+<svg class="side l" viewBox="0 0 260 820" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+  <g transform="translate(20 40) scale(1.1)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g><g transform="translate(150 150) scale(.8)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g>
+  <path d="M40 0v120M95 0v180M150 0v100M205 0v150" stroke="var(--muted)" stroke-width="1" opacity=".35"/>
+  <path d="M40 119l3.3 7.7 7.7 3.3-7.7 3.3-3.3 7.7-3.3-7.7-7.7-3.3 7.7-3.3z" fill="#ffd86e"/><path d="M150 100l3.0 7.0 7.0 3.0-7.0 3.0-3.0 7.0-3.0-7.0-7.0-3.0 7.0-3.0z" fill="#c9a8ff"/><path d="M205 149l3.3 7.7 7.7 3.3-7.7 3.3-3.3 7.7-3.3-7.7-7.7-3.3 7.7-3.3z" fill="#ffa3bd"/>
+  <path d="M95 182a14 14 0 1 0 14 18 10 10 0 1 1-14-18z" fill="#ffd86e"/>
+  <g transform="translate(120 360)">
+    <path d="M-40 26q14 36 30 50M40 26q-14 36-30 50" stroke="#b98a5e" stroke-width="1.6" fill="none"/>
+    <ellipse rx="48" ry="54" fill="#ffa3bd"/><ellipse rx="28" ry="54" fill="#ffd86e"/><ellipse rx="10" ry="54" fill="#ffa3bd"/>
+    <ellipse cx="-20" cy="-26" rx="8" ry="14" fill="#fff" opacity=".45"/>
+    <rect x="-14" y="74" width="28" height="20" rx="5" fill="#d4a373"/><path d="M-14 80h28" stroke="#b98a5e" stroke-width="1.5"/>
+  </g>
+  <path d="M40 294l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)"/><path d="M220 245l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="var(--star)"/><path d="M200 464l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)"/><circle cx="60" cy="520" r="2.4" fill="var(--star)"/><circle cx="230" cy="560" r="2" fill="var(--star)"/>
+  <g transform="translate(150 230) rotate(-8) scale(.9)"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#9cd2ff"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#9cd2ff"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#c9a8ff"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#c9a8ff"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g>
+  <path d="M0 820V770q32-16 65 0t65 0 65 0 65 0v50z" fill="#bfe8c9"/><path d="M0 820v-30q40-12 80 0t90 0 90 0v30z" fill="#a8dfb8"/>
+  <g transform="translate(118 712)">
+    <ellipse cx="-12" cy="-74" rx="9" ry="27" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/><ellipse cx="-12" cy="-72" rx="4" ry="18" fill="#ffc6d6"/>
+    <ellipse cx="12" cy="-76" rx="9" ry="27" fill="#fff" stroke="#e3dcf2" stroke-width="1.5" transform="rotate(10 12 -76)"/><ellipse cx="12" cy="-74" rx="4" ry="18" fill="#ffc6d6" transform="rotate(10 12 -74)"/>
+    <ellipse cx="0" cy="18" rx="34" ry="30" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/>
+    <circle cx="0" cy="-30" r="24" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/>
+    <circle cx="-8" cy="-33" r="2.8" fill="#2b2540"/><circle cx="8" cy="-33" r="2.8" fill="#2b2540"/><circle cx="-7.2" cy="-34" r=".9" fill="#fff"/><circle cx="8.8" cy="-34" r=".9" fill="#fff"/>
+    <path d="M-3 -25h6l-3 3z" fill="#ff9fb8"/><path d="M0 -22q-3 4-6 2M0 -22q3 4 6 2" stroke="#2b2540" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <circle cx="-15" cy="-24" r="4" fill="#ffc6d6" opacity=".8"/><circle cx="15" cy="-24" r="4" fill="#ffc6d6" opacity=".8"/>
+    <ellipse cx="0" cy="22" rx="16" ry="17" fill="#fff4f8"/>
+    <ellipse cx="-18" cy="44" rx="12" ry="7" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/><ellipse cx="18" cy="44" rx="12" ry="7" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(40 740) scale(1)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffa3bd"/><circle cx="6" r="5" fill="#ffa3bd"/><circle cx="-6" r="5" fill="#ffa3bd"/><circle cx="3.5" cy="6" r="5" fill="#ffa3bd"/><circle cx="-3.5" cy="6" r="5" fill="#ffa3bd"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(215 748) scale(0.9)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#c9a8ff"/><circle cx="6" r="5" fill="#c9a8ff"/><circle cx="-6" r="5" fill="#c9a8ff"/><circle cx="3.5" cy="6" r="5" fill="#c9a8ff"/><circle cx="-3.5" cy="6" r="5" fill="#c9a8ff"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(185 770) scale(0.75)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#9cd2ff"/><circle cx="6" r="5" fill="#9cd2ff"/><circle cx="-6" r="5" fill="#9cd2ff"/><circle cx="3.5" cy="6" r="5" fill="#9cd2ff"/><circle cx="-3.5" cy="6" r="5" fill="#9cd2ff"/><circle r="3.6" fill="#ffd86e"/></g>
+</svg>
+<svg class="side r" viewBox="0 0 260 820" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+  <g transform="translate(150 30) scale(1.1)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g><g transform="translate(10 200) scale(.8)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g>
+  <g transform="translate(120 130) rotate(12)">
+    <path d="M0 -50L36 0 0 56-36 0z" fill="#9cd2ff"/><path d="M0 -50L36 0H0z" fill="#c9a8ff"/><path d="M0 56L-36 0H0z" fill="#ffd86e"/>
+    <path d="M0 -50V56M-36 0H36" stroke="#fff" stroke-width="1.6" opacity=".8"/>
+    <path d="M0 56q-18 40 8 70t-6 80" stroke="var(--muted)" stroke-width="1.2" fill="none" opacity=".6"/>
+    <path d="M-6 90l-9-5v10zM-6 90l9-5v10z" fill="#ffa3bd"/><path d="M4 140l-9-5v10zM4 140l9-5v10z" fill="#ffd86e"/>
+  </g>
+  <path d="M40 82l2.4 5.6 5.6 2.4-5.6 2.4-2.4 5.6-2.4-5.6-5.6-2.4 5.6-2.4z" fill="var(--star)"/><path d="M230 294l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)"/><path d="M30 375l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="var(--star)"/><circle cx="210" cy="230" r="2.4" fill="var(--star)"/>
+  <g transform="translate(130 470)">
+    <path d="M-62 -2q-30-30-40-6 14 4 12 26z" fill="#86c4f5"/>
+    <ellipse rx="66" ry="44" fill="#9cd2ff"/><path d="M-60 16q60 40 120 0q-10 26-60 28-50-2-60-28z" fill="#e4f3ff"/>
+    <circle cx="34" cy="-8" r="4" fill="#2b2540"/><circle cx="35.4" cy="-9.4" r="1.3" fill="#fff"/><circle cx="44" cy="4" r="6" fill="#ffc6d6" opacity=".8"/>
+    <path d="M30 6q6 5 12 0" stroke="#2b2540" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M10 -46q-2-14 6-22M10 -46q-8-10-18-10M10 -46q10-8 20-4" stroke="#86c4f5" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="16" cy="-70" r="4" fill="#bfe1ff"/><circle cx="-10" cy="-58" r="3.4" fill="#bfe1ff"/><circle cx="32" cy="-52" r="3.4" fill="#bfe1ff"/>
+  </g>
+  <g transform="translate(70 590) rotate(14)"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#ffb3d1"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#ffb3d1"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffd86e"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffd86e"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g>
+  <path d="M0 820V770q32-16 65 0t65 0 65 0 65 0v50z" fill="#bfe8c9"/><path d="M0 820v-30q40-12 80 0t90 0 90 0v30z" fill="#a8dfb8"/>
+  <g transform="translate(120 724)">
+    <path d="M-42 6q-12-4-14 6" stroke="#b9a4ea" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="0" cy="8" rx="44" ry="34" fill="#c9b8ef"/>
+    <rect x="-30" y="28" width="15" height="20" rx="6" fill="#b9a4ea"/><rect x="12" y="28" width="15" height="20" rx="6" fill="#b9a4ea"/>
+    <circle cx="36" cy="-20" r="30" fill="#c9b8ef"/>
+    <ellipse cx="18" cy="-18" rx="20" ry="25" fill="#b9a4ea"/><ellipse cx="18" cy="-17" rx="12" ry="16" fill="#ffc6d6"/>
+    <path d="M60 -12q18 18 6 40" stroke="#c9b8ef" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <circle cx="46" cy="-26" r="3.4" fill="#2b2540"/><circle cx="47.2" cy="-27.2" r="1.1" fill="#fff"/><circle cx="54" cy="-14" r="5" fill="#ffc6d6" opacity=".8"/>
+  </g>
+  <g transform="translate(30 752) scale(0.9)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffd86e"/><circle cx="6" r="5" fill="#ffd86e"/><circle cx="-6" r="5" fill="#ffd86e"/><circle cx="3.5" cy="6" r="5" fill="#ffd86e"/><circle cx="-3.5" cy="6" r="5" fill="#ffd86e"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(225 742) scale(1)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffa3bd"/><circle cx="6" r="5" fill="#ffa3bd"/><circle cx="-6" r="5" fill="#ffa3bd"/><circle cx="3.5" cy="6" r="5" fill="#ffa3bd"/><circle cx="-3.5" cy="6" r="5" fill="#ffa3bd"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(200 772) scale(0.75)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#c9a8ff"/><circle cx="6" r="5" fill="#c9a8ff"/><circle cx="-6" r="5" fill="#c9a8ff"/><circle cx="3.5" cy="6" r="5" fill="#c9a8ff"/><circle cx="-3.5" cy="6" r="5" fill="#c9a8ff"/><circle r="3.6" fill="#ffd86e"/></g>
+</svg>
+
+
+<div class="wrap">
+  <section class="auth" id="auth" hidden>
+    <div class="panel vstack">
+      <h1>Baby Daily Log</h1>
+
+      <form id="vLogin" class="vstack" data-view>
+        <div class="seg" role="group" aria-label="Account"><button type="button" aria-pressed="true">Log in</button><button type="button" data-go="vRegister" aria-pressed="false">Create account</button></div>
+        <div class="field"><label class="label" for="liEmail">Email</label><input type="email" id="liEmail" autocomplete="email" required></div>
+        <div class="field"><label class="label" for="liPw">Password</label><input type="password" id="liPw" autocomplete="current-password" required></div>
+        <p class="err" id="liErr" hidden></p>
+        <button class="btn primary" id="liBtn" type="submit">Log in</button>
+        <button class="linkbtn" type="button" data-go="vForgot">Forgot password?</button>
+      </form>
+
+      <form id="vRegister" class="vstack" data-view hidden>
+        <div class="seg" role="group" aria-label="Account"><button type="button" data-go="vLogin" aria-pressed="false">Log in</button><button type="button" aria-pressed="true">Create account</button></div>
+        <div class="field"><label class="label" for="rgName">Your name</label><input type="text" id="rgName" autocomplete="name" maxlength="60" required></div>
+        <div class="field"><label class="label" for="rgEmail">Email</label><input type="email" id="rgEmail" autocomplete="email" required></div>
+        <div class="field"><label class="label" for="rgPw">Password (8+ characters)</label><input type="password" id="rgPw" autocomplete="new-password" minlength="8" required></div>
+        <p class="hint">We'll email you a 6-digit code. New accounts are approved by the site admin.</p>
+        <p class="err" id="rgErr" hidden></p>
+        <button class="btn primary" id="rgBtn" type="submit">Create account</button>
+      </form>
+
+      <form id="vVerify" class="vstack" data-view hidden>
+        <h3 style="margin:0;font-family:var(--display)">Check your email</h3>
+        <p class="hint">We sent a 6-digit code to <b id="vfEmail"></b>. It works for 15 minutes. Check spam if you don't see it.</p>
+        <div class="field"><label class="label" for="vfCode">Code</label><input class="codein" type="text" id="vfCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></div>
+        <p class="err" id="vfErr" hidden></p><p class="ok" id="vfOk" hidden></p>
+        <button class="btn primary" id="vfBtn" type="submit">Confirm</button>
+        <div class="inline"><button class="linkbtn" type="button" id="vfResend">Send a new code</button><button class="linkbtn" type="button" data-go="vLogin">Back to log in</button></div>
+      </form>
+
+      <form id="vForgot" class="vstack" data-view hidden>
+        <h3 style="margin:0;font-family:var(--display)">Reset your password</h3>
+        <div class="field"><label class="label" for="fgEmail">Email</label><input type="email" id="fgEmail" autocomplete="email" required></div>
+        <div id="fgStep2" class="vstack" hidden>
+          <p class="hint">If that email has an account, a 6-digit code is on its way.</p>
+          <div class="field"><label class="label" for="fgCode">Code</label><input class="codein" type="text" id="fgCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7"></div>
+          <div class="field"><label class="label" for="fgPw">New password (8+ characters)</label><input type="password" id="fgPw" autocomplete="new-password" minlength="8"></div>
+        </div>
+        <p class="err" id="fgErr" hidden></p><p class="ok" id="fgOk" hidden></p>
+        <button class="btn primary" id="fgBtn" type="submit">Email me a code</button>
+        <div class="inline"><button class="linkbtn" type="button" id="fgResend" hidden>Send a new code</button><button class="linkbtn" type="button" data-go="vLogin">Back to log in</button></div>
+      </form>
+
+      <div id="vPending" class="vstack" data-view hidden>
+        <h3 style="margin:0;font-family:var(--display)">Waiting for approval</h3>
+        <p class="hint">Your email is confirmed. The admin has been told; you'll get an email once your account is approved. Then come back and log in.</p>
+        <button class="btn" type="button" data-go="vLogin">Back to log in</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth" id="onboard" hidden>
+    <div class="panel fam">
+      <section>
+        <h1 id="hello">Welcome</h1>
+        <h3>Add your baby</h3>
+        <div class="field"><label class="label" for="obName">Baby's name</label><input type="text" id="obName" maxlength="60"></div>
+        <div class="inline">
+          <div class="field"><label class="label" for="obBirth">Birth date</label><input type="date" id="obBirth"></div>
+          <div class="field"><label class="label" for="obTime">Birth time (optional)</label><input type="time" id="obTime"></div>
+        </div>
+        <button class="btn primary" id="obCreate" type="button">Start logging</button>
+      </section>
+      <section>
+        <h3>Or join your family</h3>
+        <p class="hint">If your partner already added the baby, ask them for an invite code.</p>
+        <div class="field"><label class="label" for="obCode">Invite code</label><input type="text" id="obCode" autocomplete="off" maxlength="12"></div>
+        <button class="btn" id="obJoin" type="button">Join</button>
+      </section>
+      <p class="err" id="obErr" hidden></p>
+      <button class="btn" id="obLogout" type="button">Log out</button>
+    </div>
+  </section>
+
+  <div id="app" style="display:contents" hidden>
+  <header class="topbar">
+    <svg class="hero-art" viewBox="0 0 230 150" aria-hidden="true">
+      <path d="M152 50q-6 30 8 92M174 54q2 36-12 88M130 60q12 34 30 82" stroke="var(--muted)" stroke-width="1" fill="none" opacity=".45"/>
+      <ellipse cx="152" cy="32" rx="15" ry="18" fill="#ffa3bd"/><path d="M149 50h6l-3 4z" fill="#ffa3bd"/><ellipse cx="146" cy="25" rx="4" ry="6" fill="#fff" opacity=".55"/>
+      <ellipse cx="175" cy="38" rx="14" ry="17" fill="#9cd2ff"/><path d="M172 55h6l-3 4z" fill="#9cd2ff"/><ellipse cx="169" cy="31" rx="3.6" ry="5.6" fill="#fff" opacity=".55"/>
+      <ellipse cx="129" cy="44" rx="13" ry="16" fill="#ffd86e"/><path d="M126 60h6l-3 4z" fill="#ffd86e"/><ellipse cx="124" cy="38" rx="3.4" ry="5" fill="#fff" opacity=".55"/>
+      <g transform="translate(206 22) rotate(-12)"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#c9a8ff"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#c9a8ff"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffb3d1"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffb3d1"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/><path d="M-1 -8q-3-5-6-6M1 -8q3-5 6-6" stroke="#5b4a86" stroke-width="1" fill="none"/></g>
+      <path d="M8 150h222v-12q-20-8-40 0-22-9-44 0-22-8-46 0-22-9-46 0-24-8-46 0z" fill="#bfe8c9"/>
+      <g transform="translate(36 112)"><path d="M-8 22q-14 2-18-14q10 9 20 6z" fill="#7fd6a6"/><ellipse cx="6" cy="20" rx="22" ry="15" fill="#7fd6a6"/><path d="M-8 9l4-9 5 8M2 6l5-9 5 8M13 7l5-8 3 9" fill="#5fbf8b"/><ellipse cx="24" cy="10" rx="9" ry="11" fill="#7fd6a6"/><circle cx="31" cy="-2" r="13" fill="#7fd6a6"/><circle cx="35" cy="-5" r="2.4" fill="#2b2540"/><circle cx="35.8" cy="-5.8" r=".8" fill="#fff"/><circle cx="39" cy="1" r="3" fill="#ffb3c7" opacity=".8"/><path d="M33 3q4 3 8 0" stroke="#2b2540" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="-6" y="30" width="7" height="9" rx="3" fill="#6cc796"/><rect x="10" y="30" width="7" height="9" rx="3" fill="#6cc796"/><ellipse cx="6" cy="22" rx="12" ry="7" fill="#b5f0cd" opacity=".7"/></g>
+      <g transform="translate(118 132)"><circle cx="0" cy="-6" r="4" fill="#ffa3bd"/><circle cx="6" cy="-1" r="4" fill="#ffa3bd"/><circle cx="-6" cy="-1" r="4" fill="#ffa3bd"/><circle cx="3" cy="5" r="4" fill="#ffa3bd"/><circle cx="-3" cy="5" r="4" fill="#ffa3bd"/><circle r="3" fill="#ffd86e"/></g>
+      <g transform="translate(196 134) scale(.85)"><circle cx="0" cy="-6" r="4" fill="#c9a8ff"/><circle cx="6" cy="-1" r="4" fill="#c9a8ff"/><circle cx="-6" cy="-1" r="4" fill="#c9a8ff"/><circle cx="3" cy="5" r="4" fill="#c9a8ff"/><circle cx="-3" cy="5" r="4" fill="#c9a8ff"/><circle r="3" fill="#ffd86e"/></g>
+      <g fill="var(--star)"><path d="M100 14l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z"/><circle cx="214" cy="60" r="2"/><circle cx="92" cy="48" r="1.6"/></g>
+    </svg>
+    <div style="min-width:0"><h1 id="babyTitle">Daily Log</h1>
+    <div class="bday"><span class="age" id="ageNow"></span><span class="born" id="bornOn"></span></div>
+    <select class="babypick" id="babyPick" aria-label="Choose baby" hidden></select></div>
+    <div class="tb"><button class="btn" id="openFamily" type="button">Family</button><button class="btn" id="logout" type="button">Log out</button></div>
+  </header>
+
+  <div class="panel fam" id="family" hidden>
+    <button class="backbtn" id="famBack" type="button"><span aria-hidden="true">←</span> Back to log</button>
+    <section>
+      <h3>Baby</h3>
+      <div class="inline">
+        <div class="field"><label class="label" for="fbName">Name</label><input type="text" id="fbName" maxlength="60"></div>
+        <div class="field"><label class="label" for="fbBirth">Birth date</label><input type="date" id="fbBirth"></div>
+        <div class="field"><label class="label" for="fbTime">Birth time</label><input type="time" id="fbTime"></div>
+        <button class="btn" id="fbSave" type="button">Save</button>
+      </div>
+    </section>
+    <section>
+      <h3>Alerts</h3>
+      <div class="inline">
+        <div class="field"><label class="label" for="alDiaper">Diaper alert after (minutes, 0 = off)</label><input type="number" id="alDiaper" min="0" max="1440" step="5"></div>
+        <div class="field"><label class="label" for="alFeed">Feed alert after (minutes, 0 = off)</label><input type="number" id="alFeed" min="0" max="1440" step="5"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="alPhone"> Also send to phones with the ntfy app</label>
+      <div id="alTopicBox" class="vstack" hidden>
+        <p class="hint">Install the free ntfy app, tap +, and subscribe to this topic on every phone that should get alerts. Keep it private.</p>
+        <div class="code" id="alTopic"></div>
+        <div class="inline"><button class="btn" id="alTest" type="button">Send a test alert</button></div>
+      </div>
+      <div class="inline"><button class="btn" id="alSave" type="button">Save alerts</button></div>
+    </section>
+    <section>
+      <h3>Who can see and log</h3>
+      <ul class="members" id="memberList"></ul>
+      <button class="btn" id="mkInvite" type="button">Create invite code</button>
+      <div id="inviteBox" hidden><div class="code" id="inviteCode"></div><p class="hint">Share this with your partner or family. It works once and expires in 7 days. They create an account, then choose "Join your family".</p></div>
+    </section>
+    <section>
+      <h3>Another baby</h3>
+      <div class="inline">
+        <div class="field"><label class="label" for="nbName">Add a baby</label><input type="text" id="nbName" maxlength="60" placeholder="Name"></div>
+        <button class="btn" id="nbAdd" type="button">Add</button>
+      </div>
+      <div class="inline">
+        <div class="field"><label class="label" for="jnCode">Join with invite code</label><input type="text" id="jnCode" maxlength="12" autocomplete="off"></div>
+        <button class="btn" id="jnBtn" type="button">Join</button>
+      </div>
+    </section>
+    <section>
+      <h3>Your data</h3>
+      <div class="inline"><button class="btn" id="exportCsv" type="button">Download all entries (CSV)</button></div>
+    </section>
+    <section>
+      <h3>Change password</h3>
+      <div class="inline">
+        <div class="field"><label class="label" for="cpOld">Current</label><input type="password" id="cpOld" autocomplete="current-password"></div>
+        <div class="field"><label class="label" for="cpNew">New (8+ characters)</label><input type="password" id="cpNew" autocomplete="new-password"></div>
+        <button class="btn" id="cpSave" type="button">Change</button>
+      </div>
+    </section>
+    <section id="adminBox" hidden>
+      <h3>Admin: accounts</h3>
+      <ul class="members" id="adminList"></ul>
+    </section>
+    <section>
+      <h3>Leave or delete</h3>
+      <p class="hint">Leaving removes only you from this baby. Deleting your account removes you everywhere; a baby with nobody left is deleted with all entries.</p>
+      <div class="inline"><button class="btn danger" id="leaveBaby" type="button">Leave this baby</button></div>
+      <div class="inline">
+        <div class="field"><label class="label" for="daPw">Password to delete account</label><input type="password" id="daPw" autocomplete="current-password"></div>
+        <button class="btn danger" id="delAcct" type="button">Delete my account</button>
+      </div>
+    </section>
+    <p class="ok" id="famMsg" hidden></p>
+  </div>
+
+  <div id="notice" class="notice" hidden></div>
+  <div class="alert" id="diaperAlert" role="alert" hidden><div><span id="daText">Diaper check</span><small id="daSub"></small></div><button type="button" id="daLog">Log diaper</button></div>
+
+  <section class="quick" aria-label="Log something">
+    <button class="qbtn feed" id="openFeed"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 2h4v3l1.6 2.2V20a2 2 0 0 1-2 2h-3.2a2 2 0 0 1-2-2V7.2L10 5z"/><path d="M8.4 11h7.2M8.4 15h7.2"/></svg></span><span>+ Feed</span><small>Breast, bottle or formula</small></button>
+    <button class="qbtn diaper" id="openDiaper"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h18v3.5a9 9 0 0 1-18 0z"/><path d="M7.5 7v2.5M16.5 7v2.5"/></svg></span><span>+ Diaper</span><small>Wet, dirty or both</small></button>
+    <button class="qbtn pump" id="openPump"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg></span><span>+ Pump</span><small>Time and ml</small></button>
+    <button class="qbtn weight" id="openWeight"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="5"/><path d="M8 10a4 4 0 0 1 8 0"/><path d="M12 10l1.6-2.2"/></svg></span><span>+ Weight</span><small>kg or lb</small></button>
+  </section>
+
+  <form class="panel" id="form" hidden>
+    <h2 id="formTitle">Log a feed</h2>
+    <div class="seg" id="kindSeg" role="group" aria-label="Kind"></div>
+    <div class="row">
+      <div class="field"><label class="label" for="when">Time</label><input type="datetime-local" id="when" required></div>
+      <div class="field" id="amtField"><label class="label" for="amt">Amount (ml)</label><input type="number" id="amt" min="0" step="5" inputmode="numeric" placeholder="e.g. 60"></div>
+      <div class="field" id="wField"><label class="label" for="wVal">Weight</label><div class="wunit"><input type="number" id="wVal" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 3.45"><select id="wUnitIn" aria-label="Unit"><option value="kg">kg</option><option value="lb">lb</option></select></div></div>
+      <div class="field" id="durField"><label class="label" for="dur">Duration (min)</label><input type="number" id="dur" min="0" step="1" inputmode="numeric" placeholder="e.g. 15"></div>
+    </div>
+    <div class="field"><label class="label" for="note">Note</label><input type="text" id="note" maxlength="200" placeholder="Optional"></div>
+    <div class="actions"><button type="button" class="btn" id="cancel">Cancel</button><button type="submit" class="btn primary" id="save">Save</button></div>
+  </form>
+
+  <section aria-label="Today">
+    <div class="stats">
+      <div class="stat since" id="sinceBox"><span class="label">Since last feed</span><span class="v num" id="since">—</span><span class="d" id="sinceD">No feeds yet</span></div>
+      <div class="stat"><span class="label">Feeds today</span><span class="v num" id="feedsToday">0</span><span class="d" id="mlToday">0 ml by bottle</span></div>
+      <div class="stat"><span class="label">Wet today</span><span class="v num" id="wetToday">0</span><span class="d" id="wetLast">incl. both</span></div>
+      <div class="stat"><span class="label">Dirty today</span><span class="v num" id="dirtyToday">0</span><span class="d" id="dirtyLast">incl. both</span></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Last 7 days">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+      <h2>Last 7 days</h2>
+      <div class="legend"><span style="--c:var(--feed)">Feeds</span><span style="--c:var(--diaper)">Diapers</span></div>
+    </div>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <section class="panel" aria-label="Day to day change">
+    <div class="milk-top">
+      <h2>Day-to-day change</h2>
+      <div class="seg" id="cRangeSeg" role="group" aria-label="Days">
+        <button type="button" data-n="7" aria-pressed="true">1 week</button>
+        <button type="button" data-n="14" aria-pressed="false">2 weeks</button>
+        <button type="button" data-n="30" aria-pressed="false">1 month</button>
+      </div>
+    </div>
+    <div class="seg" id="cMetricSeg" role="group" aria-label="What to compare">
+      <button type="button" data-m="ml" aria-pressed="true">Milk (ml)</button>
+      <button type="button" data-m="feeds" aria-pressed="false">Feeds</button>
+      <button type="button" data-m="diapers" aria-pressed="false">Diapers</button>
+      <button type="button" data-m="pump" aria-pressed="false">Pumped (ml)</button>
+    </div>
+    <div class="chg-head" id="chgHead"></div>
+    <div class="chart" id="chgChart"></div>
+    <p class="mnote">Each bar is that day minus the day before. Green is more, red is less. Today is compared with yesterday up to the same time.</p>
+  </section>
+
+  <section class="panel" aria-label="Milk intake">
+    <div class="milk-top">
+      <h2>Milk intake</h2>
+      <div class="seg" id="rangeSeg" role="group" aria-label="Range">
+        <button type="button" data-r="1" aria-pressed="true">Today</button>
+        <button type="button" data-r="y" aria-pressed="false">Yesterday</button>
+        <button type="button" data-r="3" aria-pressed="false">3 days</button>
+        <button type="button" data-r="7" aria-pressed="false">1 week</button>
+        <button type="button" data-r="30" aria-pressed="false">1 month</button>
+        <button type="button" data-r="90" aria-pressed="false">3 months</button>
+        <button type="button" data-r="c" aria-pressed="false">Pick dates</button>
+      </div>
+    </div>
+    <div class="rcustom" id="mCustom" hidden>
+      <div class="field"><label class="label" for="mFrom">From</label><input type="date" id="mFrom"></div>
+      <div class="field"><label class="label" for="mTo">To</label><input type="date" id="mTo"></div>
+    </div>
+    <div class="mstats" id="mstats"></div>
+    <div class="chart" id="milkChart"></div>
+    <p class="mnote">Counts bottle and formula feeds with an amount in ml. Breastfeeding is shown in minutes.</p>
+  </section>
+
+  <section class="panel" aria-label="Diaper changes">
+    <div class="milk-top">
+      <h2>Diaper changes</h2>
+      <div class="seg" id="dRangeSeg" role="group" aria-label="Range">
+        <button type="button" data-r="1" aria-pressed="true">Today</button>
+        <button type="button" data-r="y" aria-pressed="false">Yesterday</button>
+        <button type="button" data-r="3" aria-pressed="false">3 days</button>
+        <button type="button" data-r="7" aria-pressed="false">1 week</button>
+        <button type="button" data-r="30" aria-pressed="false">1 month</button>
+        <button type="button" data-r="90" aria-pressed="false">3 months</button>
+        <button type="button" data-r="c" aria-pressed="false">Pick dates</button>
+      </div>
+    </div>
+    <div class="rcustom" id="dCustom" hidden>
+      <div class="field"><label class="label" for="dFrom">From</label><input type="date" id="dFrom"></div>
+      <div class="field"><label class="label" for="dTo">To</label><input type="date" id="dTo"></div>
+    </div>
+    <div class="mstats" id="dstats"></div>
+    <div class="chart" id="diaperChart"></div>
+    <p class="mnote">Wet and dirty counts include "both" changes.</p>
+  </section>
+
+  <section class="panel" aria-label="Pumping">
+    <div class="milk-top">
+      <h2>Pumping</h2>
+      <div class="seg" id="pRangeSeg" role="group" aria-label="Range">
+        <button type="button" data-r="1" aria-pressed="true">Today</button>
+        <button type="button" data-r="y" aria-pressed="false">Yesterday</button>
+        <button type="button" data-r="3" aria-pressed="false">3 days</button>
+        <button type="button" data-r="7" aria-pressed="false">1 week</button>
+        <button type="button" data-r="30" aria-pressed="false">1 month</button>
+        <button type="button" data-r="90" aria-pressed="false">3 months</button>
+        <button type="button" data-r="c" aria-pressed="false">Pick dates</button>
+      </div>
+    </div>
+    <div class="rcustom" id="pCustom" hidden>
+      <div class="field"><label class="label" for="pFrom">From</label><input type="date" id="pFrom"></div>
+      <div class="field"><label class="label" for="pTo">To</label><input type="date" id="pTo"></div>
+    </div>
+    <div class="mstats" id="pstats"></div>
+    <div class="chart" id="pumpChart"></div>
+    <p class="mnote">Line shows ml pumped. Sessions logged without an amount still count toward time.</p>
+  </section>
+
+  <section class="panel" aria-label="Weight">
+    <div class="milk-top">
+      <h2>Weight</h2>
+      <div class="seg" id="wUnitSeg" role="group" aria-label="Unit">
+        <button type="button" data-u="kg" aria-pressed="true">kg</button>
+        <button type="button" data-u="lb" aria-pressed="false">lb</button>
+      </div>
+    </div>
+    <div class="mstats" id="wstats"></div>
+    <div class="chart" id="weightChart"></div>
+  </section>
+
+  <section class="panel" aria-label="Timeline">
+    <div class="daynav">
+      <button id="prev" aria-label="Previous day">‹</button>
+      <div class="dayc"><h2 id="dayLabel">Today</h2><input type="date" id="dayPick" aria-label="Jump to date"></div>
+      <button id="next" aria-label="Next day">›</button>
+    </div>
+    <ul class="tl" id="tl"><li class="empty" style="display:block">Loading…</li></ul>
+  </section>
+  <svg class="garden" viewBox="0 0 400 60" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><path d="M0 60V44q25-10 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0v16z" fill="#bfe8c9" opacity=".8"/>
+    <g transform="translate(40 40)"><path d="M0 0v14" stroke="#6cc796" stroke-width="2"/><circle cx="0" cy="-5" r="4" fill="#ffa3bd"/><circle cx="5" cy="0" r="4" fill="#ffa3bd"/><circle cx="-5" cy="0" r="4" fill="#ffa3bd"/><circle cx="0" cy="5" r="4" fill="#ffa3bd"/><circle r="3" fill="#ffd86e"/></g>
+    <g transform="translate(120 44) scale(.8)"><path d="M0 0v14" stroke="#6cc796" stroke-width="2"/><circle cx="0" cy="-5" r="4" fill="#9cd2ff"/><circle cx="5" cy="0" r="4" fill="#9cd2ff"/><circle cx="-5" cy="0" r="4" fill="#9cd2ff"/><circle cx="0" cy="5" r="4" fill="#9cd2ff"/><circle r="3" fill="#ffd86e"/></g>
+    <g transform="translate(200 18) rotate(10)"><ellipse cx="-6" cy="-3" rx="7" ry="5" fill="#ffb3d1"/><ellipse cx="6" cy="-3" rx="7" ry="5" fill="#ffb3d1"/><ellipse cx="-4" cy="4" rx="4" ry="3.4" fill="#c9a8ff"/><ellipse cx="4" cy="4" rx="4" ry="3.4" fill="#c9a8ff"/><rect x="-1.2" y="-7" width="2.4" height="14" rx="1.2" fill="#5b4a86"/></g>
+    <g transform="translate(290 42)"><path d="M0 0v14" stroke="#6cc796" stroke-width="2"/><circle cx="0" cy="-5" r="4" fill="#c9a8ff"/><circle cx="5" cy="0" r="4" fill="#c9a8ff"/><circle cx="-5" cy="0" r="4" fill="#c9a8ff"/><circle cx="0" cy="5" r="4" fill="#c9a8ff"/><circle r="3" fill="#ffd86e"/></g>
+    <g transform="translate(360 40) scale(.9)"><path d="M0 0v14" stroke="#6cc796" stroke-width="2"/><circle cx="0" cy="-5" r="4" fill="#ffd86e"/><circle cx="5" cy="0" r="4" fill="#ffd86e"/><circle cx="-5" cy="0" r="4" fill="#ffd86e"/><circle cx="0" cy="5" r="4" fill="#ffd86e"/><circle r="3" fill="#ff9f6b"/></g></svg>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const FEED_KINDS=[["breast-l","Breast (L)"],["breast-r","Breast (R)"],["bottle","Breast milk bottle"],["formula","Formula"]];
+const DIAPER_KINDS=[["wet","Wet"],["dirty","Dirty"],["both","Both"]];
+const PUMP_KINDS=[["left","Left"],["right","Right"],["both","Both sides"]];
+const KIND_LABEL=Object.fromEntries([...FEED_KINDS,...DIAPER_KINDS,["weight","Weight"]]);
+const PUMP_LABEL=Object.fromEntries(PUMP_KINDS);
+const fmtDur=ms=>{const m=Math.round(ms/6e4);return m<60?m+"m":Math.floor(m/60)+"h "+pad(m%60)+"m"};
+const avgGap=ts=>{if(ts.length<2)return null;const s=[...ts].sort((a,b)=>a-b);return (s[s.length-1]-s[0])/(s.length-1)};
+const LB=453.59237;
+
+let wUnit="kg";try{wUnit=localStorage.getItem("zaraWUnit")||"kg"}catch(e){}
+const fmtW=g=>wUnit==="kg"?(g/1000).toFixed(2)+" kg":(()=>{const lb=g/LB;const w=Math.floor(lb);const oz=(lb-w)*16;return `${w} lb ${oz.toFixed(1)} oz`})();
+let logs=[], mode="feed", kind="breast-l", dayOffset=0, loaded=false;
+
+const AUTH_ACTIONS=["login","register","verify","resendCode","forgot","resetPassword"];
+async function api(action,body){
+  const r=await fetch("api.php?action="+action,{method:"POST",credentials:"same-origin",
+    headers:{"Content-Type":"application/json","X-Requested-With":"baby-log"},body:JSON.stringify(body||{})});
+  const j=await r.json().catch(()=>({error:"Server error"}));
+  if(r.status===401&&!AUTH_ACTIONS.includes(action)){showLogin();throw new Error("auth")}
+  if(!r.ok){const e=new Error(j.error||"Server error");e.next=j.next;throw e}
+  return j;
+}
+
+const startOfDay=(d)=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+const pad=n=>String(n).padStart(2,"0");
+const toLocalInput=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtTime=t=>new Date(t).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+const notice=msg=>{const n=$("notice");n.textContent=msg;n.hidden=!msg};
+
+let me=null, babies=[], babyId=0, isAdmin=false, authEmail="";
+const show=id=>{["auth","onboard","app"].forEach(x=>$(x).hidden=x!==id)};
+const errOn=(id,m)=>{$(id).textContent=m||"";$(id).hidden=!m};
+function view(id){document.querySelectorAll("[data-view]").forEach(v=>v.hidden=v.id!==id);
+  document.querySelectorAll("#auth .err,#auth .ok").forEach(e=>e.hidden=true);
+  if(id==="vVerify"){$("vfEmail").textContent=authEmail;$("vfCode").value="";$("vfCode").focus()}
+  if(id==="vForgot"){$("fgEmail").value=$("fgEmail").value||$("liEmail").value;$("fgStep2").hidden=true;$("fgResend").hidden=true;$("fgBtn").textContent="Email me a code"}}
+function showLogin(v){show("auth");if(typeof famView==="function")famView(false);view(v||"vLogin")}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>view(b.dataset.go));
+const armed=(btn,label,fn)=>{if(!btn.classList.contains("armed")){btn.classList.add("armed");const t=btn.textContent;btn.textContent=label;
+  setTimeout(()=>{btn.classList.remove("armed");btn.textContent=t},4000);return}fn()};
+const famMsg=m=>{const e=$("famMsg");e.textContent=m;e.hidden=!m;if(m)setTimeout(()=>{if(e.textContent===m)e.hidden=true},4000)};
+async function busy(btn,fn){btn.disabled=true;try{await fn()}finally{btn.disabled=false}}
+
+$("vLogin").addEventListener("submit",e=>{e.preventDefault();errOn("liErr");busy($("liBtn"),async()=>{
+  authEmail=$("liEmail").value.trim();
+  try{await api("login",{email:authEmail,password:$("liPw").value});$("liPw").value="";await boot()}
+  catch(err){if(err.next==="verify")view("vVerify");else if(err.next==="pending")view("vPending");else errOn("liErr",err.message)}})});
+$("vRegister").addEventListener("submit",e=>{e.preventDefault();errOn("rgErr");busy($("rgBtn"),async()=>{
+  authEmail=$("rgEmail").value.trim();
+  try{await api("register",{name:$("rgName").value,email:authEmail,password:$("rgPw").value});$("rgPw").value="";view("vVerify")}
+  catch(err){errOn("rgErr",err.message)}})});
+$("vVerify").addEventListener("submit",e=>{e.preventDefault();errOn("vfErr");busy($("vfBtn"),async()=>{
+  try{const j=await api("verify",{email:authEmail,code:$("vfCode").value});if(j.next==="app")await boot();else view("vPending")}
+  catch(err){errOn("vfErr",err.message)}})});
+$("vfResend").onclick=()=>busy($("vfResend"),async()=>{errOn("vfErr");try{await api("resendCode",{email:authEmail,purpose:"verify"});errOn("vfOk","New code sent.")}catch(err){errOn("vfErr",err.message)}});
+$("vForgot").addEventListener("submit",e=>{e.preventDefault();errOn("fgErr");errOn("fgOk");busy($("fgBtn"),async()=>{
+  authEmail=$("fgEmail").value.trim();
+  try{
+    if($("fgStep2").hidden){await api("forgot",{email:authEmail});$("fgStep2").hidden=false;$("fgResend").hidden=false;$("fgBtn").textContent="Set new password";$("fgCode").focus();return}
+    const j=await api("resetPassword",{email:authEmail,code:$("fgCode").value,password:$("fgPw").value});$("fgPw").value="";
+    if(j.next==="app")await boot();else if(j.next==="pending")view("vPending");else{view("vLogin");errOn("liErr","")}
+  }catch(err){errOn("fgErr",err.message)}})});
+$("fgResend").onclick=()=>busy($("fgResend"),async()=>{try{await api("resendCode",{email:authEmail,purpose:"reset"});errOn("fgOk","New code sent.")}catch(err){errOn("fgErr",err.message)}});
+
+async function doLogout(){try{await api("logout")}catch(e){}me=null;logs=[];showLogin()}
+$("logout").onclick=doLogout;$("obLogout").onclick=doLogout;
+
+$("obCreate").onclick=async()=>{errOn("obErr");
+  try{const j=await api("createBaby",{name:$("obName").value,birthDate:$("obBirth").value||null,birthTime:$("obTime").value||null});babyId=j.babyId;await boot()}catch(err){errOn("obErr",err.message)}};
+$("obJoin").onclick=async()=>{errOn("obErr");
+  try{const j=await api("join",{code:$("obCode").value});babyId=j.babyId;await boot()}catch(err){errOn("obErr",err.message)}};
+
+function rememberBaby(){try{localStorage.setItem("babyLogBaby",String(babyId))}catch(e){}}
+async function boot(){
+  let j;try{j=await api("me")}catch(e){if(e.message!=="auth")errOn("liErr","Couldn't reach the server.");showLogin();return}
+  me=j.user;babies=j.babies;isAdmin=j.isAdmin;
+  if(!babies.length){$("hello").textContent="Welcome, "+me.name;show("onboard");return}
+  if(!babies.some(b=>b.id===babyId)){let saved=0;try{saved=+localStorage.getItem("babyLogBaby")}catch(e){}
+    babyId=babies.some(b=>b.id===saved)?saved:babies[0].id}
+  rememberBaby();
+  const pick=$("babyPick");pick.innerHTML="";
+  babies.forEach(b=>{const o=document.createElement("option");o.value=b.id;o.textContent=b.name;o.selected=b.id===babyId;pick.appendChild(o)});
+  pick.hidden=babies.length<2;
+  const b=curBaby();$("babyTitle").textContent=b.name+"'s Daily Log";document.title=b.name+"'s Daily Log";
+  show("app");logs=[];loaded=false;render();await refresh();
+  if(!$("family").hidden)loadFamily();
+}
+function curBaby(){return babies.find(b=>b.id===babyId)||{name:"Baby",diaperAlertMin:135,feedAlertMin:0}}
+$("babyPick").onchange=async()=>{babyId=+$("babyPick").value;rememberBaby();dayOffset=0;await boot()};
+
+function famView(on){$("family").hidden=!on;document.body.classList.toggle("famview",on);$("openFamily").hidden=on;
+  $("openFamily").setAttribute("aria-pressed",on);window.scrollTo({top:0});if(on)loadFamily()}
+$("openFamily").onclick=()=>famView(true);
+$("famBack").onclick=()=>famView(false);
+function showTopic(t){$("alPhone").checked=!!t;$("alTopicBox").hidden=!t;$("alTopic").textContent=t||""}
+async function loadFamily(){
+  const b=curBaby();$("fbName").value=b.name;$("fbBirth").value=b.birthDate||"";$("fbTime").value=b.birthTime||"";
+  $("alDiaper").value=b.diaperAlertMin;$("alFeed").value=b.feedAlertMin;showTopic(b.ntfyTopic);
+  $("adminBox").hidden=!isAdmin;$("inviteBox").hidden=true;
+  try{const j=await api("members",{babyId});const ul=$("memberList");ul.innerHTML="";
+    const myRole=(j.members.find(m=>m.you)||{}).role;
+    j.members.forEach(m=>{const li=document.createElement("li");const w=document.createElement("div");w.className="who";
+      w.textContent=m.name+(m.you?" (you)":"");const sm=document.createElement("small");sm.textContent=m.email+(m.role==="owner"?" · owner":"");w.appendChild(sm);li.appendChild(w);
+      if(myRole==="owner"&&!m.you){const rb=document.createElement("button");rb.className="btn danger";rb.textContent="Remove";
+        rb.onclick=()=>armed(rb,"Confirm",async()=>{try{await api("removeMember",{babyId,userId:m.id});loadFamily()}catch(e){famMsg(e.message)}});li.appendChild(rb)}
+      ul.appendChild(li)})}catch(e){if(e.message!=="auth")famMsg(e.message)}
+  if(isAdmin)loadAdmin();
+}
+async function loadAdmin(){
+  try{const j=await api("adminUsers");const ul=$("adminList");ul.innerHTML="";
+    if(!j.users.length){ul.innerHTML='<li class="hint">No accounts yet.</li>';return}
+    j.users.forEach(u=>{const li=document.createElement("li");const w=document.createElement("div");w.className="who";
+      w.textContent=u.name+(u.you?" (you)":"");
+      if(u.status!=="active"){const p=document.createElement("span");p.className="pill";p.textContent=u.status==="pending"?"waiting":"turned off";w.appendChild(p)}
+      const sm=document.createElement("small");sm.textContent=u.email+" · joined "+new Date(u.created).toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"});w.appendChild(sm);li.appendChild(w);
+      if(!u.you){const acts=document.createElement("div");acts.className="acts";
+        const mk=(label,status,cls)=>{const bt=document.createElement("button");bt.className="btn"+(cls?" "+cls:"");bt.textContent=label;
+          const go=async()=>{try{await api("adminSetStatus",{userId:u.id,status});famMsg(label+" done");loadAdmin()}catch(e){famMsg(e.message)}};
+          bt.onclick=cls?()=>armed(bt,"Confirm",go):go;acts.appendChild(bt)};
+        if(u.status==="pending"){mk("Approve","active");mk("Reject","delete","danger")}
+        else if(u.status==="active")mk("Turn off","disabled","danger");
+        else{mk("Turn on","active");mk("Delete","delete","danger")}
+        li.appendChild(acts)}
+      ul.appendChild(li)})}catch(e){famMsg(e.message)}
+}
+$("fbSave").onclick=async()=>{try{await api("updateBaby",{babyId,name:$("fbName").value,birthDate:$("fbBirth").value||null,birthTime:$("fbTime").value||null});famMsg("Saved");await boot()}catch(e){famMsg(e.message)}};
+$("alPhone").onchange=()=>{$("alTopicBox").hidden=!$("alPhone").checked||!curBaby().ntfyTopic};
+$("alSave").onclick=async()=>{try{const j=await api("alertSettings",{babyId,diaperAlertMin:+$("alDiaper").value||0,feedAlertMin:+$("alFeed").value||0,phoneAlerts:$("alPhone").checked});
+  const b=curBaby();b.diaperAlertMin=+$("alDiaper").value||0;b.feedAlertMin=+$("alFeed").value||0;b.ntfyTopic=j.ntfyTopic;showTopic(j.ntfyTopic);render();famMsg("Alerts saved")}catch(e){famMsg(e.message)}};
+$("alTest").onclick=async()=>{try{await api("testAlert",{babyId});famMsg("Test sent. Check your phone.")}catch(e){famMsg(e.message)}};
+$("mkInvite").onclick=async()=>{try{const j=await api("createInvite",{babyId});$("inviteCode").textContent=j.code.slice(0,4)+"-"+j.code.slice(4);$("inviteBox").hidden=false}catch(e){famMsg(e.message)}};
+$("nbAdd").onclick=async()=>{try{const j=await api("createBaby",{name:$("nbName").value});$("nbName").value="";babyId=j.babyId;famMsg("Added");await boot()}catch(e){famMsg(e.message)}};
+$("jnBtn").onclick=async()=>{try{const j=await api("join",{code:$("jnCode").value});$("jnCode").value="";babyId=j.babyId;famMsg("Joined");await boot()}catch(e){famMsg(e.message)}};
+$("cpSave").onclick=async()=>{try{await api("changePassword",{current:$("cpOld").value,new:$("cpNew").value});$("cpOld").value="";$("cpNew").value="";famMsg("Password changed")}catch(e){famMsg(e.message)}};
+$("leaveBaby").onclick=()=>armed($("leaveBaby"),"Tap again to leave",async()=>{try{await api("removeMember",{babyId,userId:me.id});babyId=0;famView(false);await boot()}catch(e){famMsg(e.message)}});
+$("delAcct").onclick=()=>armed($("delAcct"),"Tap again to delete",async()=>{try{await api("deleteAccount",{password:$("daPw").value});$("daPw").value="";me=null;logs=[];showLogin()}catch(e){famMsg(e.message)}});
+$("exportCsv").onclick=async()=>{
+  try{const j=await api("list",{babyId,all:true});
+    const esc=v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+    const rows=[["date","time","type","kind","amount_ml","duration_min","weight_g","note","logged_by"]];
+    j.logs.slice().reverse().forEach(l=>{const d=new Date(l.time);rows.push([d.toLocaleDateString("en-CA"),d.toTimeString().slice(0,5),l.type,l.kind,l.amountMl,l.durationMin,l.weightG,l.note,l.byName])});
+    const blob=new Blob([rows.map(r=>r.map(esc).join(",")).join("\n")],{type:"text/csv"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=curBaby().name.replace(/[^\w-]+/g,"_")+"-log.csv";document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000)}catch(e){famMsg(e.message)}};
+
+function setSeg(){
+  const kinds=mode==="feed"?FEED_KINDS:mode==="diaper"?DIAPER_KINDS:mode==="pump"?PUMP_KINDS:[];
+  $("kindSeg").hidden=mode==="weight";$("wField").hidden=mode!=="weight";
+  $("kindSeg").innerHTML="";
+  kinds.forEach(([k,l])=>{const b=document.createElement("button");b.type="button";b.textContent=l;b.setAttribute("aria-pressed",k===kind);
+    b.onclick=()=>{kind=k;setSeg()};$("kindSeg").appendChild(b)});
+  const isFeed=mode==="feed", breast=kind.startsWith("breast"), pump=mode==="pump";
+  $("amtField").hidden=!(pump||(isFeed&&!breast));
+  $("durField").hidden=!(pump||(isFeed&&breast));
+  $("amt").placeholder=pump?"e.g. 90":"e.g. 60";
+}
+let editId=null;
+function openForm(m,e){
+  mode=m;kind=e?e.kind:m==="feed"?"breast-l":m==="diaper"?"wet":m==="pump"?"both":"weight";
+  editId=e?e.id:null;
+  const what=m==="feed"?"feed":m==="diaper"?"diaper change":m==="pump"?"pumping":"weight";
+  $("formTitle").textContent=(e?"Edit ":"Log ")+(m==="feed"||m==="diaper"?(e?"":"a ")+what:what);
+  $("save").textContent=e?"Save changes":"Save";
+  $("wUnitIn").value=wUnit;
+  $("wVal").value=e&&e.weightG?(wUnit==="kg"?(e.weightG/1000).toFixed(2):(e.weightG/LB).toFixed(2)):"";
+  $("when").value=toLocalInput(e?new Date(e.time):new Date());
+  $("amt").value=e&&e.amountMl?e.amountMl:"";$("dur").value=e&&e.durationMin?e.durationMin:"";$("note").value=e?e.note||"":"";
+  setSeg();$("form").hidden=false;$("form").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("openFeed").onclick=()=>openForm("feed");
+$("openDiaper").onclick=()=>openForm("diaper");
+$("openWeight").onclick=()=>openForm("weight");
+$("openPump").onclick=()=>openForm("pump");
+$("cancel").onclick=()=>{$("form").hidden=true;editId=null};
+
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const t=new Date($("when").value).getTime();
+  if(!isFinite(t)){notice("Pick a valid time.");return}
+  const rec={type:mode,kind,time:t,note:$("note").value.trim()};
+  if(mode==="feed"){
+    if(kind.startsWith("breast")){const d=parseFloat($("dur").value);if(d>0)rec.durationMin=d}
+    else{const a=parseFloat($("amt").value);if(a>0)rec.amountMl=a}
+  }
+  if(mode==="pump"){const d=parseFloat($("dur").value),a=parseFloat($("amt").value);
+    if(!(d>0)&&!(a>0)){notice("Enter the pumping time or amount.");return}
+    if(d>0)rec.durationMin=d;if(a>0)rec.amountMl=a}
+  if(mode==="weight"){const v=parseFloat($("wVal").value);
+    if(!(v>0)){notice("Enter a weight.");return}
+    rec.weightG=Math.round($("wUnitIn").value==="kg"?v*1000:v*LB);
+    if(rec.weightG<500||rec.weightG>30000){notice("That weight looks wrong. Check the number and unit.");return}}
+  $("save").disabled=true;
+  rec.babyId=babyId;
+  try{if(editId){rec.id=editId;await api("update",rec)}else{await api("add",rec);dayOffset=0}
+    editId=null;$("form").hidden=true;notice("");await refresh()}
+  catch(err){if(err.message!=="auth")notice("Couldn't save: "+err.message)}
+  finally{$("save").disabled=false}
+});
+
+async function refresh(){
+  if(!babyId)return;
+  try{const j=await api("list",{babyId});logs=j.logs;loaded=true;notice("");render()}
+  catch(err){if(err.message!=="auth")notice("Couldn't load entries. Check your connection.")}
+}
+
+const RS={m:{sel:"1",from:"",to:""},d:{sel:"1",from:"",to:""},p:{sel:"1",from:"",to:""}};
+const isoDay=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+function setupRange(segId,k){
+  const btns=document.querySelectorAll("#"+segId+" button"), box=$(k+"Custom"), f=$(k+"From"), t=$(k+"To");
+  btns.forEach(b=>b.onclick=()=>{RS[k].sel=b.dataset.r;btns.forEach(x=>x.setAttribute("aria-pressed",x===b));
+    box.hidden=b.dataset.r!=="c";
+    if(b.dataset.r==="c"&&!f.value){const td=isoDay(Date.now());f.value=isoDay(Date.now()-86400000);t.value=td;RS[k].from=f.value;RS[k].to=t.value}
+    render()});
+  const lim=()=>{const mx=isoDay(Date.now()),mn=isoDay(Date.now()-99*86400000);[f,t].forEach(x=>{x.max=mx;x.min=mn})};lim();
+  f.onchange=t.onchange=()=>{RS[k].from=f.value;RS[k].to=t.value;render()};
+}
+function rangeOf(k,today,now,DAY){
+  const r=RS[k];let start,days,word;
+  if(r.sel==="y"){start=today-DAY;days=1;word="yesterday"}
+  else if(r.sel==="c"&&r.from){let a=startOfDay(r.from+"T00:00").getTime(),b=r.to?startOfDay(r.to+"T00:00").getTime():a;if(b<a)[a,b]=[b,a];
+    start=a;days=Math.round((b-a)/DAY)+1;word=days===1?(a===today?"today":"on "+new Date(a).toLocaleDateString([], {month:"short",day:"numeric"})):""}
+  else{days=+r.sel||1;start=today-(days-1)*DAY;word="today"}
+  return{start,days,word,cap:Math.min(now,start+days*DAY)};
+}
+setupRange("rangeSeg","m");setupRange("dRangeSeg","d");setupRange("pRangeSeg","p");
+let chgN=7, chgM="ml";
+document.querySelectorAll("#cRangeSeg button").forEach(b=>b.onclick=()=>{chgN=+b.dataset.n;document.querySelectorAll("#cRangeSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+document.querySelectorAll("#cMetricSeg button").forEach(b=>b.onclick=()=>{chgM=b.dataset.m;document.querySelectorAll("#cMetricSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+function metricIn(a,b){
+  const ls=logs.filter(l=>l.time>=a&&l.time<b);
+  if(chgM==="ml")return ls.filter(l=>l.type==="feed").reduce((s,l)=>s+(l.amountMl||0),0);
+  if(chgM==="feeds")return ls.filter(l=>l.type==="feed").length;
+  if(chgM==="diapers")return ls.filter(l=>l.type==="diaper").length;
+  return ls.filter(l=>l.type==="pump").reduce((s,l)=>s+(l.amountMl||0),0);
+}
+function renderChange(now,today,DAY){
+  const unit=chgM==="ml"||chgM==="pump"?" ml":"";
+  const sgn=v=>(v>0?"+":v<0?"−":"±")+Math.abs(Math.round(v))+unit;
+  const el=now-today;
+  const tSo=metricIn(today,now), ySame=metricIn(today-DAY,today-DAY+el);
+  const dHead=tSo-ySame;
+  $("chgHead").innerHTML=`<span class="big num ${dHead>0?"up":dHead<0?"down":""}">${sgn(dHead)}</span><span class="sub2">today so far (${Math.round(tSo)}${unit}) vs yesterday by this time (${Math.round(ySame)}${unit})</span>`;
+  const t0=logs.length?startOfDay(Math.min(...logs.map(l=>l.time))).getTime():today;
+  if(t0>=today){$("chgHead").innerHTML=`<span class="sub2">Comparisons start after the first full day of logging.</span>`;$("chgChart").innerHTML="";return}
+  const n=chgN, rows=[];
+  for(let i=n-1;i>=0;i--){const s0=today-i*DAY;
+    if(s0<=t0)rows.push({s:s0,d:0,none:true});
+    else if(i===0)rows.push({s:s0,d:dHead,partial:true});
+    else rows.push({s:s0,d:metricIn(s0,s0+DAY)-metricIn(s0-DAY,s0)})}
+  const mx=Math.max(1,...rows.map(r=>Math.abs(r.d)));const top=chgM==="ml"||chgM==="pump"?niceMax(Math.max(mx,20)):Math.max(2,Math.ceil(mx/2)*2);
+  const W=640,H=230,L=48,R=10,T=16,B=28,iw=W-L-R,ih=H-T-B,cw=iw/n,bw=Math.max(4,Math.min(22,cw*.6));
+  const Y=v=>T+ih/2-(v/top)*(ih/2);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Change from the day before">`;
+  [-top,-top/2,0,top/2,top].forEach(v=>{svg+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" ${v===0?'stroke-width="1.5"':""}/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${v>0?"+":v<0?"−":""}${Math.abs(Math.round(v))}</text>`});
+  const every=n<=7?1:n<=14?2:5;
+  rows.forEach((r,i)=>{const cx=L+cw*i+cw/2, y0=Y(0), y1=Y(r.d), c=r.d>=0?"var(--ok)":"var(--warn)";
+    if(r.none){}
+    else if(r.d!==0)svg+=`<rect x="${cx-bw/2}" y="${Math.min(y0,y1)}" width="${bw}" height="${Math.abs(y1-y0)}" rx="3" fill="${c}" ${r.partial?'opacity=".45"':""}/>`;
+    else svg+=`<line x1="${cx-bw/2}" x2="${cx+bw/2}" y1="${y0}" y2="${y0}" stroke="var(--muted)" stroke-width="2"/>`;
+    if(n<=14&&!r.none)svg+=`<text x="${cx}" y="${r.d>=0?y1-5:y1+13}" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--mono)">${r.d>0?"+":r.d<0?"−":""}${Math.abs(Math.round(r.d))}</text>`;
+    if(r.partial||(n-1-i)%every===0){const lab=r.partial?"Today":n<=7?new Date(r.s).toLocaleDateString([], {weekday:"short"}):new Date(r.s).toLocaleDateString([], {month:"short",day:"numeric"});
+      svg+=`<text x="${cx}" y="${H-8}" text-anchor="${i===n-1?"end":"middle"}" font-size="11" fill="${r.partial?"var(--fg)":"var(--muted)"}" font-weight="${r.partial?600:400}">${lab}</text>`}});
+  $("chgChart").innerHTML=svg+"</svg>";
+}
+function niceMax(v){if(v<=0)return 100;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+function renderMilk(now,today,DAY){
+  const RG=rangeOf("m",today,now,DAY), days=RG.days, start=RG.start, cap=RG.cap;
+  const feeds=logs.filter(l=>l.type==="feed"&&l.time>=start&&l.time<cap);
+  const ml=feeds.reduce((s,l)=>s+(l.amountMl||0),0);
+  const bm=feeds.filter(l=>l.kind==="bottle").reduce((s,l)=>s+(l.amountMl||0),0);
+  const fm=feeds.filter(l=>l.kind==="formula").reduce((s,l)=>s+(l.amountMl||0),0);
+  const bf=feeds.filter(l=>l.kind.startsWith("breast"));
+  const bfMin=bf.reduce((s,l)=>s+(l.durationMin||0),0);
+  const stat=(label,v,unit)=>`<div class="mstat"><span class="label">${label}</span><span class="v num">${v}<small>${unit}</small></span></div>`;
+  $("mstats").innerHTML=(days===1
+    ?stat("Total "+RG.word,Math.round(ml),"ml")
+    :stat("Total",Math.round(ml),"ml")+stat("Daily average",Math.round(ml/days),"ml"))
+    +stat("Breast milk (bottle)",Math.round(bm),"ml")+stat("Formula",Math.round(fm),"ml")
+    +stat("Breastfeeding",bf.length,bf.length===1?"time":"times")+(bfMin?stat("Breastfed",Math.round(bfMin),"min"):"");
+
+  const W=640,H=222,L=44,R=12,T=26,B=28,iw=W-L-R,ih=H-T-B;
+  let pts=[],xLabels=[];
+  if(days===1){
+    // cumulative ml through the day
+    const sorted=feeds.filter(l=>l.amountMl).sort((a,b)=>a.time-b.time);
+    let c=0;pts.push([0,0]);
+    sorted.forEach(l=>{c+=l.amountMl;pts.push([(l.time-start)/DAY,c])});
+    pts.push([Math.max(0,(cap-start)/DAY),c]);
+    xLabels=[0,6,12,18,24].map(h=>[h/24,h===0?"12 AM":h===12?"12 PM":h===24?"":(h%12)+(h<12?" AM":" PM")]);
+  }else{
+    for(let i=0;i<days;i++){const s0=start+i*DAY;
+      const v=logs.filter(l=>l.type==="feed"&&l.time>=s0&&l.time<s0+DAY).reduce((s,l)=>s+(l.amountMl||0),0);
+      pts.push([days===1?0:i/(days-1),v])}
+    const step=days<=7?1:days<=30?5:15;
+    for(let i=days-1;i>=0;i-=step){const d=new Date(start+i*DAY);
+      xLabels.push([i/(days-1),start+i*DAY===today?"Today":days<=7?d.toLocaleDateString([], {weekday:"short"}):d.toLocaleDateString([], {month:"short",day:"numeric"})])}
+  }
+  const top=niceMax(Math.max(...pts.map(p=>p[1]))*1.1);
+  const X=x=>L+x*iw, Y=v=>T+ih-(v/top)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Milk intake in ml">`;
+  for(let i=0;i<=4;i++){const v=top*i/4;svg+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${Math.round(v)}</text>`}
+  svg+=`<text x="${L-6}" y="${T-12}" text-anchor="end" font-size="10" fill="var(--muted)">ml</text>`;
+  xLabels.forEach(([x,t])=>{if(t)svg+=`<text x="${X(x)}" y="${H-8}" text-anchor="middle" font-size="11" fill="${t==="Today"?"var(--fg)":"var(--muted)"}" font-weight="${t==="Today"?600:400}">${t}</text>`});
+  const line=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
+  const last=pts[pts.length-1];
+  svg+=`<path d="${line}" fill="none" stroke="var(--feed)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  if(days<=30)pts.forEach(p=>{svg+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="var(--surface)" stroke="var(--feed)" stroke-width="2"/>`});
+  svg+=`<circle cx="${X(last[0])}" cy="${Y(last[1])}" r="5" fill="var(--feed)"/>`;
+  const lx=X(last[0]), anchor=lx>W-70?"end":"middle";
+  svg+=`<text x="${lx}" y="${Y(last[1])-10}" text-anchor="${anchor}" font-size="12" font-weight="600" fill="var(--fg)" font-family="var(--mono)">${Math.round(last[1])} ml</text>`;
+  $("milkChart").innerHTML=svg+"</svg>";
+}
+
+document.querySelectorAll("#wUnitSeg button").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.u===wUnit);b.onclick=()=>{wUnit=b.dataset.u;
+  try{localStorage.setItem("zaraWUnit",wUnit)}catch(e){}
+  document.querySelectorAll("#wUnitSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()}});
+function renderPump(now,today,DAY){
+  const RG=rangeOf("p",today,now,DAY), days=RG.days, start=RG.start, cap=RG.cap;
+  const ps=logs.filter(l=>l.type==="pump"&&l.time>=start&&l.time<cap);
+  const ml=ps.reduce((s,l)=>s+(l.amountMl||0),0), min=ps.reduce((s,l)=>s+(l.durationMin||0),0);
+  const lastP=logs.filter(l=>l.type==="pump"&&l.time<=now).reduce((m,l)=>Math.max(m,l.time),0);
+  const gap=avgGap(ps.map(l=>l.time));
+  const stat=(label,v,unit)=>`<div class="mstat"><span class="label">${label}</span><span class="v num">${v}<small>${unit}</small></span></div>`;
+  $("pstats").innerHTML=stat(days===1?"Pumped "+RG.word:"Pumped",Math.round(ml),"ml")
+    +(days>1?stat("Daily average",Math.round(ml/days),"ml"):"")
+    +stat("Sessions",ps.length,"")+stat("Total time",Math.round(min),"min")
+    +stat("Since last pump",lastP?fmtDur(now-lastP):"—","")+stat("Pumping every",gap?fmtDur(gap):"—","");
+  const W=640,H=222,L=44,R=12,T=26,B=28,iw=W-L-R,ih=H-T-B;
+  let pts=[],xLabels=[];
+  if(days===1){
+    const sorted=ps.filter(l=>l.amountMl).sort((a,b)=>a.time-b.time);
+    let c=0;pts.push([0,0]);sorted.forEach(l=>{c+=l.amountMl;pts.push([(l.time-start)/DAY,c])});
+    pts.push([Math.max(0,(cap-start)/DAY),c]);
+    xLabels=[0,6,12,18].map(h=>[h/24,h===0?"12 AM":h===12?"12 PM":(h%12)+(h<12?" AM":" PM")]);
+  }else{
+    for(let i=0;i<days;i++){const s0=start+i*DAY;
+      pts.push([i/(days-1),logs.filter(l=>l.type==="pump"&&l.time>=s0&&l.time<s0+DAY).reduce((s,l)=>s+(l.amountMl||0),0)])}
+    const step=days<=7?1:days<=30?5:15;
+    for(let i=days-1;i>=0;i-=step){const d=new Date(start+i*DAY);
+      xLabels.push([i/(days-1),start+i*DAY===today?"Today":days<=7?d.toLocaleDateString([], {weekday:"short"}):d.toLocaleDateString([], {month:"short",day:"numeric"})])}
+  }
+  const top=niceMax(Math.max(...pts.map(p=>p[1]))*1.1);
+  const X=x=>L+x*iw, Y=v=>T+ih-(v/top)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Milk pumped in ml">`;
+  for(let i=0;i<=4;i++){const v=top*i/4;svg+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${Math.round(v)}</text>`}
+  svg+=`<text x="${L-6}" y="${T-12}" text-anchor="end" font-size="10" fill="var(--muted)">ml</text>`;
+  xLabels.forEach(([x,t])=>{svg+=`<text x="${X(x)}" y="${H-8}" text-anchor="middle" font-size="11" fill="${t==="Today"?"var(--fg)":"var(--muted)"}" font-weight="${t==="Today"?600:400}">${t}</text>`});
+  svg+=`<path d="${pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="var(--pump)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  if(days<=30)pts.forEach(p=>{svg+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="var(--surface)" stroke="var(--pump)" stroke-width="2"/>`});
+  const last=pts[pts.length-1],lx=X(last[0]);
+  svg+=`<circle cx="${lx}" cy="${Y(last[1])}" r="5" fill="var(--pump)"/><text x="${lx}" y="${Y(last[1])-10}" text-anchor="${lx>W-70?"end":"middle"}" font-size="12" font-weight="600" fill="var(--fg)" font-family="var(--mono)">${Math.round(last[1])} ml</text>`;
+  $("pumpChart").innerHTML=svg+"</svg>";
+}
+
+function renderWeight(){
+  const ws=logs.filter(l=>l.type==="weight"&&l.weightG).sort((a,b)=>a.time-b.time);
+  const stat=(label,v)=>`<div class="mstat"><span class="label">${label}</span><span class="v num" style="font-size:1.15rem">${v}</span></div>`;
+  if(!ws.length){$("wstats").innerHTML="";$("weightChart").innerHTML=`<p class="empty">No weights yet. Tap + Weight to add her birth weight and each check-up.</p>`;return}
+  const first=ws[0],last=ws[ws.length-1],diff=last.weightG-first.weightG;
+  const dstr=(diff>=0?"+":"−")+(wUnit==="kg"?(Math.abs(diff)/1000).toFixed(2)+" kg":(Math.abs(diff)/LB*16).toFixed(1)+" oz");
+  const fmtD=t=>new Date(t).toLocaleDateString([], {month:"short",day:"numeric"});
+  $("wstats").innerHTML=stat("Latest",fmtW(last.weightG))+stat("Measured",fmtD(last.time))+(ws.length>1?stat("Change since "+fmtD(first.time),dstr):"");
+  const toU=g=>wUnit==="kg"?g/1000:g/LB;
+  const vals=ws.map(w=>toU(w.weightG));
+  let lo=Math.min(...vals),hi=Math.max(...vals);const pad=Math.max((hi-lo)*0.2,wUnit==="kg"?0.2:0.5);lo=Math.max(0,lo-pad);hi=hi+pad;
+  const t0=first.time,t1=Math.max(last.time,t0+86400000);
+  const W=640,H=222,L=44,R=16,T=26,B=28,iw=W-L-R,ih=H-T-B;
+  const X=t=>ws.length===1?L+iw/2:L+(t-t0)/(t1-t0)*iw, Y=v=>T+ih-(v-lo)/(hi-lo)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight over time">`;
+  for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4;svg+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${v.toFixed(wUnit==="kg"?2:1)}</text>`}
+  svg+=`<text x="${L-6}" y="${T-12}" text-anchor="end" font-size="10" fill="var(--muted)">${wUnit}</text>`;
+  const n=Math.min(5,ws.length);for(let i=0;i<n;i++){const t=n===1?t0:t0+(t1-t0)*i/(n-1);
+    svg+=`<text x="${n===1?X(t):L+iw*i/(n-1)}" y="${H-8}" text-anchor="${n===1?"middle":i===0?"start":i===n-1?"end":"middle"}" font-size="11" fill="var(--muted)">${fmtD(t)}</text>`}
+  if(ws.length>1)svg+=`<path d="${ws.map((w,i)=>(i?"L":"M")+X(w.time).toFixed(1)+" "+Y(vals[i]).toFixed(1)).join(" ")}" fill="none" stroke="var(--weight)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  ws.forEach((w,i)=>{const isLast=i===ws.length-1;svg+=`<circle cx="${X(w.time)}" cy="${Y(vals[i])}" r="${isLast?5:3.5}" fill="${isLast?"var(--weight)":"var(--surface)"}" stroke="var(--weight)" stroke-width="2"/>`});
+  const lx=X(last.time);svg+=`<text x="${lx}" y="${Y(vals[vals.length-1])-10}" text-anchor="${lx>W-80?"end":"middle"}" font-size="12" font-weight="600" fill="var(--fg)" font-family="var(--mono)">${vals[vals.length-1].toFixed(wUnit==="kg"?2:1)}</text>`;
+  $("weightChart").innerHTML=svg+"</svg>";
+}
+
+function renderDiaper(now,today,DAY){
+  const RG=rangeOf("d",today,now,DAY), days=RG.days, start=RG.start, cap=RG.cap;
+  const ds=logs.filter(l=>l.type==="diaper"&&l.time>=start&&l.time<cap);
+  const wet=ds.filter(l=>l.kind==="wet"||l.kind==="both").length;
+  const dirty=ds.filter(l=>l.kind==="dirty"||l.kind==="both").length;
+  const both=ds.filter(l=>l.kind==="both").length;
+  const avg=v=>(v/days).toFixed(1).replace(/\.0$/,"");
+  const stat=(label,v,unit)=>`<div class="mstat"><span class="label">${label}</span><span class="v num">${v}<small>${unit}</small></span></div>`;
+  $("dstats").innerHTML=(days===1
+    ?stat("Total "+RG.word,ds.length,"changes")
+    :stat("Total",ds.length,"changes")+stat("Daily average",avg(ds.length),"/day"))
+    +stat("Wet",days===1?wet:avg(wet),days===1?"":"/day")+stat("Dirty",days===1?dirty:avg(dirty),days===1?"":"/day")+stat("Both",both,"");
+  const gW=avgGap(ds.filter(l=>l.kind==="wet"||l.kind==="both").map(l=>l.time));
+  const gD=avgGap(ds.filter(l=>l.kind==="dirty"||l.kind==="both").map(l=>l.time));
+  const gA=avgGap(ds.map(l=>l.time));
+  $("dstats").innerHTML+=stat("Any change every",gA?fmtDur(gA):"—","")+stat("Wet every",gW?fmtDur(gW):"—","")+stat("Dirty every",gD?fmtDur(gD):"—","");
+
+  const W=640,H=210,L=44,R=12,T=14,B=28,iw=W-L-R,ih=H-T-B;
+  let pts=[],xLabels=[];
+  if(days===1){
+    const sorted=[...ds].sort((a,b)=>a.time-b.time);
+    let c=0;pts.push([0,0]);
+    sorted.forEach(l=>{c+=1;pts.push([(l.time-start)/DAY,c])});
+    pts.push([Math.max(0,(cap-start)/DAY),c]);
+    xLabels=[0,6,12,18,24].map(h=>[h/24,h===0?"12 AM":h===12?"12 PM":h===24?"":(h%12)+(h<12?" AM":" PM")]);
+  }else{
+    for(let i=0;i<days;i++){const s0=start+i*DAY;
+      pts.push([i/(days-1),logs.filter(l=>l.type==="diaper"&&l.time>=s0&&l.time<s0+DAY).length])}
+    const step=days<=7?1:days<=30?5:15;
+    for(let i=days-1;i>=0;i-=step){const d=new Date(start+i*DAY);
+      xLabels.push([i/(days-1),start+i*DAY===today?"Today":days<=7?d.toLocaleDateString([], {weekday:"short"}):d.toLocaleDateString([], {month:"short",day:"numeric"})])}
+  }
+  const top=Math.max(4,Math.ceil(Math.max(...pts.map(p=>p[1]))*1.15/4)*4);
+  const X=x=>L+x*iw, Y=v=>T+ih-(v/top)*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Diaper changes">`;
+  for(let i=0;i<=4;i++){const v=top*i/4;svg+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${v}</text>`}
+  xLabels.forEach(([x,t])=>{if(t)svg+=`<text x="${X(x)}" y="${H-8}" text-anchor="middle" font-size="11" fill="${t==="Today"?"var(--fg)":"var(--muted)"}" font-weight="${t==="Today"?600:400}">${t}</text>`});
+  const line=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
+  const last=pts[pts.length-1];
+  svg+=`<path d="${line}" fill="none" stroke="var(--diaper)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  if(days<=30)pts.forEach(p=>{svg+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="var(--surface)" stroke="var(--diaper)" stroke-width="2"/>`});
+  svg+=`<circle cx="${X(last[0])}" cy="${Y(last[1])}" r="5" fill="var(--diaper)"/>`;
+  const lx=X(last[0]), anchor=lx>W-70?"end":"middle";
+  svg+=`<text x="${lx}" y="${Y(last[1])-10}" text-anchor="${anchor}" font-size="12" font-weight="600" fill="var(--fg)" font-family="var(--mono)">${last[1]}</text>`;
+  $("diaperChart").innerHTML=svg+"</svg>";
+}
+
+function render(){
+  const now=Date.now(), today=startOfDay(now).getTime(), DAY=864e5;
+  const todays=logs.filter(l=>l.time>=today&&l.time<today+DAY);
+  const feeds=todays.filter(l=>l.type==="feed");
+  $("feedsToday").textContent=feeds.length;
+  $("mlToday").textContent=feeds.reduce((s,l)=>s+(l.amountMl||0),0)+" ml by bottle";
+  $("wetToday").textContent=todays.filter(l=>l.type==="diaper"&&(l.kind==="wet"||l.kind==="both")).length;
+  $("dirtyToday").textContent=todays.filter(l=>l.type==="diaper"&&(l.kind==="dirty"||l.kind==="both")).length;
+  const lastOf=k=>logs.filter(l=>l.type==="diaper"&&(l.kind===k||l.kind==="both")&&l.time<=now).reduce((m,l)=>Math.max(m,l.time),0);
+  const lw=lastOf("wet"),ld=lastOf("dirty");
+  // age + diaper alert
+  const cb=curBaby();
+  if(cb.birthDate){const BIRTH=cb.birthDate+"T"+(cb.birthTime||"00:00");
+    const bd=new Date(BIRTH),ageD=Math.floor((today-startOfDay(BIRTH).getTime())/DAY);
+    const wk=Math.floor(ageD/7),dd=ageD%7;
+    $("ageNow").textContent=ageD<0?"":ageD<7?ageD+(ageD===1?" day old":" days old"):wk+(wk===1?" week":" weeks")+(dd?", "+dd+(dd===1?" day":" days"):"")+" old"+(ageD>=60?` (${Math.floor(ageD/30.44)} months)`:"");
+    $("bornOn").textContent="Born "+bd.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"})+(cb.birthTime?" at "+fmtTime(bd):"")+(ageD>=0?" · day "+(ageD+1):"")}
+  else{$("ageNow").textContent="";$("bornOn").textContent="Add a birth date in Family to see age."}
+  const lastD=logs.filter(l=>l.type==="diaper"&&l.time<=now).reduce((m,l)=>Math.max(m,l.time),0);
+  const overdue=cb.diaperAlertMin>0&&lastD&&now-lastD>=cb.diaperAlertMin*6e4;
+  $("diaperAlert").hidden=!overdue;
+  if(overdue){$("daText").textContent="Diaper not changed for "+fmtDur(now-lastD);$("daSub").textContent="Last change at "+fmtTime(lastD)+". Time for a check."}
+  $("wetLast").textContent=lw?"Last "+fmtDur(now-lw)+" ago":"incl. both";
+  $("dirtyLast").textContent=ld?"Last "+fmtDur(now-ld)+" ago":"incl. both";
+  const lastFeed=logs.filter(l=>l.type==="feed"&&l.time<=now).sort((a,b)=>b.time-a.time)[0];
+  if(lastFeed){const m=Math.floor((now-lastFeed.time)/6e4);
+    $("since").textContent=`${Math.floor(m/60)}h ${pad(m%60)}m`;
+    $("sinceD").textContent=`${KIND_LABEL[lastFeed.kind]||"Feed"} at ${fmtTime(lastFeed.time)}`;
+    $("sinceBox").classList.toggle("late",m>=180);
+  }else{$("since").textContent="—";$("sinceD").textContent="No feeds yet";$("sinceBox").classList.remove("late")}
+
+  const days=[...Array(7)].map((_,i)=>{const s=today-(6-i)*DAY;const ls=logs.filter(l=>l.time>=s&&l.time<s+DAY);
+    return{s,f:ls.filter(l=>l.type==="feed").length,d:ls.filter(l=>l.type==="diaper").length}});
+  const max=Math.max(4,...days.map(d=>Math.max(d.f,d.d)));const top=Math.ceil(max/4)*4;
+  const W=640,H=200,L=28,B=26,T=10,cw=(W-L-8)/7,bw=Math.min(18,cw/3.2);
+  const y=v=>H-B-(v/top)*(H-B-T);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Feeds and diaper changes per day, last 7 days">`;
+  for(let i=0;i<=4;i++){const v=top*i/4;svg+=`<line x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--mono)">${v}</text>`}
+  days.forEach((d,i)=>{const cx=L+cw*i+cw/2;
+    const bar=(v,x,c)=>v?`<rect x="${x}" y="${y(v)}" width="${bw}" height="${y(0)-y(v)}" rx="3" fill="${c}"/><text x="${x+bw/2}" y="${y(v)-4}" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--mono)">${v}</text>`:"";
+    svg+=bar(d.f,cx-bw-2,"var(--feed)")+bar(d.d,cx+2,"var(--diaper)");
+    const lab=i===6?"Today":new Date(d.s).toLocaleDateString([], {weekday:"short"});
+    svg+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="11" fill="${i===6?"var(--fg)":"var(--muted)"}" font-weight="${i===6?600:400}">${lab}</text>`});
+  $("chart").innerHTML=svg+"</svg>";
+
+  renderChange(now,today,DAY);
+  renderMilk(now,today,DAY);
+  renderDiaper(now,today,DAY);
+  renderPump(now,today,DAY);
+  renderWeight();
+
+  const ds=today-dayOffset*DAY;
+  $("dayLabel").textContent=dayOffset===0?"Today":dayOffset===1?"Yesterday":new Date(ds).toLocaleDateString([], {weekday:"long",month:"short",day:"numeric"});
+  $("next").disabled=dayOffset===0;
+  const dp=$("dayPick");dp.max=isoDay(now);dp.min=isoDay(now-99*DAY);dp.value=isoDay(ds+3600000);
+  const items=logs.filter(l=>l.time>=ds&&l.time<ds+DAY).sort((a,b)=>b.time-a.time);
+  const ul=$("tl");ul.innerHTML="";
+  if(!items.length){const li=document.createElement("li");li.className="empty";li.style.display="block";
+    li.textContent=!loaded?"Loading…":logs.length?"Nothing logged this day.":"No entries yet. Tap + Feed or + Diaper to add the first one.";ul.appendChild(li);return}
+  items.forEach(l=>{
+    const li=document.createElement("li");
+    const t=document.createElement("span");t.className="t";t.textContent=fmtTime(l.time);
+    const w=document.createElement("div");w.className="what";
+    const b=document.createElement("b");const chip=document.createElement("span");chip.className="chip "+l.type;chip.textContent=l.type==="feed"?"Feed":l.type==="diaper"?"Diaper":l.type==="pump"?"Pump":"Weight";
+    b.append(chip,l.type==="pump"?PUMP_LABEL[l.kind]||l.kind:KIND_LABEL[l.kind]||l.kind);
+    const extra=[l.weightG?fmtW(l.weightG):"",l.amountMl?l.amountMl+" ml":"",l.durationMin?l.durationMin+" min":"",l.note||"",l.byName&&me&&l.byName!==me.name?"by "+l.byName:""].filter(Boolean).join(" · ");
+    w.appendChild(b);if(extra){const em=document.createElement("em");em.textContent=extra;w.appendChild(em)}
+    const del=document.createElement("button");del.className="del";del.textContent="Delete";
+    del.onclick=async()=>{if(!del.classList.contains("armed")){del.classList.add("armed");del.textContent="Confirm";setTimeout(()=>{del.classList.remove("armed");del.textContent="Delete"},3000);return}
+      try{await api("delete",{babyId,id:l.id});await refresh()}catch(e){if(e.message!=="auth")notice("Couldn't delete that entry.")}};
+    const ed=document.createElement("button");ed.className="edit";ed.textContent="Edit";ed.onclick=()=>openForm(l.type,l);
+    const acts=document.createElement("div");acts.className="acts";acts.append(ed,del);
+    li.append(t,w,acts);ul.appendChild(li)});
+}
+$("dayPick").onchange=()=>{const v=$("dayPick").value;if(!v)return;
+  const off=Math.round((startOfDay(Date.now()).getTime()-startOfDay(v+"T00:00").getTime())/864e5);dayOffset=Math.max(0,off);render()};
+$("prev").onclick=()=>{dayOffset++;render()};
+$("next").onclick=()=>{if(dayOffset>0){dayOffset--;render()}};
+
+// Refresh every 30s (picks up the other parent's entries) and when the tab comes back
+setInterval(()=>{if(!$("app").hidden)refresh()},30000);
+$("daLog").onclick=()=>openForm("diaper");
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!$("app").hidden)refresh()});
+
+render();
+boot();
+})();
+</script>
+</body>
+</html>
