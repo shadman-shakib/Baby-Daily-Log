@@ -408,6 +408,7 @@ html,body{overflow-x:hidden}
         <div class="field"><label class="label" for="alFeed">Feed alert after (minutes, 0 = off)</label><input type="number" id="alFeed" min="0" max="1440" step="5"></div>
       </div>
       <label class="check"><input type="checkbox" id="alPhone"> Also send to phones with the ntfy app</label>
+      <label class="check" id="alLogRow"><input type="checkbox" id="alLog"> Also tell phones when a diaper change is logged</label>
       <div id="alTopicBox" class="vstack" hidden>
         <p class="hint">Install the free ntfy app, tap +, and subscribe to this topic on every phone that should get alerts. Keep it private.</p>
         <div class="code" id="alTopic"></div>
@@ -712,10 +713,10 @@ function famView(on){$("family").hidden=!on;document.body.classList.toggle("famv
   $("openFamily").setAttribute("aria-pressed",on);window.scrollTo({top:0});if(on)loadFamily()}
 $("openFamily").onclick=()=>famView(true);
 $("famBack").onclick=()=>famView(false);
-function showTopic(t){$("alPhone").checked=!!t;$("alTopicBox").hidden=!t;$("alTopic").textContent=t||""}
+function showTopic(t){$("alPhone").checked=!!t;$("alTopicBox").hidden=!t;$("alTopic").textContent=t||"";$("alLogRow").hidden=!$("alPhone").checked}
 async function loadFamily(){
   const b=curBaby();$("fbName").value=b.name;$("fbBirth").value=b.birthDate||"";$("fbTime").value=b.birthTime||"";
-  $("alDiaper").value=b.diaperAlertMin;$("alFeed").value=b.feedAlertMin;showTopic(b.ntfyTopic);
+  $("alDiaper").value=b.diaperAlertMin;$("alFeed").value=b.feedAlertMin;$("alLog").checked=b.logNotify!==false;showTopic(b.ntfyTopic);
   $("adminBox").hidden=!isAdmin;$("inviteBox").hidden=true;
   try{const j=await api("members",{babyId});const ul=$("memberList");ul.innerHTML="";
     const myRole=(j.members.find(m=>m.you)||{}).role;
@@ -744,9 +745,9 @@ async function loadAdmin(){
       ul.appendChild(li)})}catch(e){famMsg(e.message)}
 }
 $("fbSave").onclick=async()=>{try{await api("updateBaby",{babyId,name:$("fbName").value,birthDate:$("fbBirth").value||null,birthTime:$("fbTime").value||null});famMsg("Saved");await boot()}catch(e){famMsg(e.message)}};
-$("alPhone").onchange=()=>{$("alTopicBox").hidden=!$("alPhone").checked||!curBaby().ntfyTopic};
-$("alSave").onclick=async()=>{try{const j=await api("alertSettings",{babyId,diaperAlertMin:+$("alDiaper").value||0,feedAlertMin:+$("alFeed").value||0,phoneAlerts:$("alPhone").checked});
-  const b=curBaby();b.diaperAlertMin=+$("alDiaper").value||0;b.feedAlertMin=+$("alFeed").value||0;b.ntfyTopic=j.ntfyTopic;showTopic(j.ntfyTopic);render();famMsg("Alerts saved")}catch(e){famMsg(e.message)}};
+$("alPhone").onchange=()=>{$("alTopicBox").hidden=!$("alPhone").checked||!curBaby().ntfyTopic;$("alLogRow").hidden=!$("alPhone").checked};
+$("alSave").onclick=async()=>{try{const j=await api("alertSettings",{babyId,diaperAlertMin:+$("alDiaper").value||0,feedAlertMin:+$("alFeed").value||0,phoneAlerts:$("alPhone").checked,logNotify:$("alLog").checked});
+  const b=curBaby();b.diaperAlertMin=+$("alDiaper").value||0;b.feedAlertMin=+$("alFeed").value||0;b.ntfyTopic=j.ntfyTopic;b.logNotify=$("alLog").checked;showTopic(j.ntfyTopic);render();famMsg("Alerts saved")}catch(e){famMsg(e.message)}};
 $("alTest").onclick=async()=>{try{await api("testAlert",{babyId});famMsg("Test sent. Check your phone.")}catch(e){famMsg(e.message)}};
 $("mkInvite").onclick=async()=>{try{const j=await api("createInvite",{babyId});$("inviteCode").textContent=j.code.slice(0,4)+"-"+j.code.slice(4);$("inviteBox").hidden=false}catch(e){famMsg(e.message)}};
 $("nbAdd").onclick=async()=>{try{const j=await api("createBaby",{name:$("nbName").value});$("nbName").value="";babyId=j.babyId;famMsg("Added");await boot()}catch(e){famMsg(e.message)}};

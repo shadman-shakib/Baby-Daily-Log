@@ -20,5 +20,7 @@ return [
   'diaper_alert_min' => 135,
   'feed_alert_min' => 0,
   'alert_repeat_min' => 30,
+  'notify_on_log' => ['diaper'],   // phone note when these are logged; add 'feed' etc., or [] for off
+  'baby_name' => 'Zara',
   'timezone' => 'America/Chicago',
 ];

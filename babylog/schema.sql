@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS bl_babies (
   ntfy_topic VARCHAR(64) NULL,                  -- phone alerts for this baby (ntfy app)
   diaper_alert_min SMALLINT UNSIGNED NOT NULL DEFAULT 135,
   feed_alert_min SMALLINT UNSIGNED NOT NULL DEFAULT 0,       -- 0 = off
+  log_notify TINYINT(1) NOT NULL DEFAULT 1,                 -- phone note when a diaper change is logged
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

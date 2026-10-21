@@ -37,3 +37,24 @@ foreach ($babies as $b) {
     }
   }
 }
+
+// ---- "Diaper changed" notes: one per new diaper entry, for babies with phone alerts and log_notify on ----
+$kinds = ['wet' => 'Wet', 'dirty' => 'Dirty', 'both' => 'Wet + dirty'];
+$maxQ = $pdo->prepare('SELECT COALESCE(MAX(id),0) FROM bl_logs WHERE baby_id = ?');
+$newQ = $pdo->prepare("SELECT l.id, l.kind, l.time_ms, u.name AS by_name FROM bl_logs l LEFT JOIN bl_users u ON u.id = l.user_id
+                       WHERE l.baby_id = ? AND l.id > ? AND l.type = 'diaper' ORDER BY l.id LIMIT 10");
+foreach ($pdo->query("SELECT id, name, ntfy_topic FROM bl_babies WHERE ntfy_topic IS NOT NULL AND ntfy_topic <> '' AND log_notify = 1")->fetchAll() as $b) {
+  $maxQ->execute([$b['id']]); $maxId = (int)$maxQ->fetchColumn();
+  $state->execute([$b['id'], 'log_seen']); $prev = $state->fetch();
+  if ($prev) {
+    $newQ->execute([$b['id'], (int)$prev['ref_ms']]);
+    foreach ($newQ->fetchAll() as $r) {
+      if ($now - (int)$r['time_ms'] > 3 * 3600000) continue; // skip back-dated entries
+      $at = (new DateTime('@' . intdiv((int)$r['time_ms'], 1000)))->setTimezone($tz)->format('g:i A');
+      $msg = ($kinds[$r['kind']] ?? $r['kind']) . " · $at" . ($r['by_name'] ? ' · by ' . $r['by_name'] : '');
+      ntfy($config, $b['ntfy_topic'], "{$b['name']}: diaper changed", $msg, 'baby,white_check_mark', 3, $config['site_url'] ?? '');
+      echo "baby {$b['id']} diaper #{$r['id']} sent\n";
+    }
+  }
+  $save->execute([$b['id'], 'log_seen', $maxId, $now]);
+}

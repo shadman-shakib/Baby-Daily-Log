@@ -67,3 +67,34 @@ foreach ($checks as [$type, $limit, $title, $text, $tags]) {
     echo "$type alert sent\n";
   } else echo "$type alert failed\n";
 }
+
+// ---- "Diaper changed" notifications ----
+// Sends a short note for each new entry of these types, from either site (shared mode) — at most 5 minutes late.
+$logTypes = array_values(array_intersect((array)($config['notify_on_log'] ?? ['diaper']), ['diaper', 'feed', 'pump', 'weight']));
+if ($logTypes) {
+  $baby = (int)($config['baby_id'] ?? 0);
+  $babyName = (string)($config['baby_name'] ?? 'Zara');
+  $st = $pdo->prepare('SELECT ref_ms FROM alert_state WHERE name = ?'); $st->execute(['log_seen']);
+  $seen = $st->fetchColumn();
+  $in = implode(',', array_map([$pdo, 'quote'], $logTypes));
+  $maxId = (int)$pdo->query($baby ? "SELECT COALESCE(MAX(id),0) FROM bl_logs WHERE baby_id = $baby" : 'SELECT COALESCE(MAX(id),0) FROM baby_logs')->fetchColumn();
+  if ($seen === false) {
+    echo "log notifications: starting from entry $maxId\n"; // first run: don't announce old entries
+  } else {
+    $sql = $baby
+      ? "SELECT l.id, l.type, l.kind, l.time_ms, l.amount_ml, u.name AS by_name FROM bl_logs l LEFT JOIN bl_users u ON u.id = l.user_id
+         WHERE l.baby_id = $baby AND l.id > " . (int)$seen . " AND l.type IN ($in) ORDER BY l.id LIMIT 10"
+      : "SELECT id, type, kind, time_ms, amount_ml, NULL AS by_name FROM baby_logs WHERE id > " . (int)$seen . " AND type IN ($in) ORDER BY id LIMIT 10";
+    $kinds = ['wet' => 'Wet', 'dirty' => 'Dirty', 'both' => 'Wet + dirty', 'bottle' => 'Breast milk bottle', 'formula' => 'Formula',
+              'breast-l' => 'Breast (L)', 'breast-r' => 'Breast (R)', 'left' => 'Left', 'right' => 'Right', 'weight' => 'Weight'];
+    $titles = ['diaper' => 'diaper changed', 'feed' => 'fed', 'pump' => 'pumped', 'weight' => 'weighed'];
+    foreach ($pdo->query($sql)->fetchAll() as $r) {
+      if ($now - (int)$r['time_ms'] > 3 * 3600000) continue; // skip back-dated entries
+      $at = (new DateTime('@' . intdiv((int)$r['time_ms'], 1000)))->setTimezone($tz)->format('g:i A');
+      $msg = ($kinds[$r['kind']] ?? $r['kind']) . ($r['amount_ml'] ? ' ' . (0 + $r['amount_ml']) . ' ml' : '') . " · $at" . ($r['by_name'] ? ' · by ' . $r['by_name'] : '');
+      $ok = send($server, $topic, "$babyName: " . ($titles[$r['type']] ?? $r['type']), $msg, $site, $r['type'] === 'diaper' ? 'baby,white_check_mark' : 'baby', 3);
+      echo "logged {$r['type']} #{$r['id']}: " . ($ok ? 'sent' : 'failed') . "\n";
+    }
+  }
+  $pdo->prepare('REPLACE INTO alert_state (name, ref_ms, sent_ms) VALUES (?,?,?)')->execute(['log_seen', $maxId, $now]);
+}

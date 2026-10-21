@@ -197,10 +197,10 @@ switch ($action) {
     $u = uid();
     $user = q('SELECT id, name, email FROM bl_users WHERE id = ?', [$u])->fetch();
     $babies = q('SELECT b.id, b.name, b.birth_date AS birthDate, b.birth_time AS birthTime, b.diaper_alert_min AS diaperAlertMin,
-                        b.feed_alert_min AS feedAlertMin, b.ntfy_topic AS ntfyTopic, m.role
+                        b.feed_alert_min AS feedAlertMin, b.ntfy_topic AS ntfyTopic, b.log_notify AS logNotify, m.role
                  FROM bl_babies b JOIN bl_members m ON m.baby_id = b.id WHERE m.user_id = ? ORDER BY b.created_at', [$u])->fetchAll();
     foreach ($babies as &$x) {
-      $x['id'] = (int)$x['id']; $x['diaperAlertMin'] = (int)$x['diaperAlertMin']; $x['feedAlertMin'] = (int)$x['feedAlertMin'];
+      $x['id'] = (int)$x['id']; $x['diaperAlertMin'] = (int)$x['diaperAlertMin']; $x['feedAlertMin'] = (int)$x['feedAlertMin']; $x['logNotify'] = (bool)$x['logNotify'];
       if ($x['birthTime']) $x['birthTime'] = substr($x['birthTime'], 0, 5);
     }
     $user['id'] = (int)$user['id'];
@@ -293,7 +293,8 @@ switch ($action) {
     $topic = babyRow($bid)['ntfy_topic'];
     if (!empty($b['phoneAlerts']) && !$topic) $topic = 'babylog-' . randCode(14, 'abcdefghijkmnpqrstuvwxyz23456789');
     if (array_key_exists('phoneAlerts', $b) && !$b['phoneAlerts']) $topic = null;
-    q('UPDATE bl_babies SET diaper_alert_min = ?, feed_alert_min = ?, ntfy_topic = ? WHERE id = ?', [$d, $f, $topic, $bid]);
+    $ln = array_key_exists('logNotify', $b) ? (empty($b['logNotify']) ? 0 : 1) : 1;
+    q('UPDATE bl_babies SET diaper_alert_min = ?, feed_alert_min = ?, ntfy_topic = ?, log_notify = ? WHERE id = ?', [$d, $f, $topic, $ln, $bid]);
     out(['ok' => true, 'ntfyTopic' => $topic]);
   }
 

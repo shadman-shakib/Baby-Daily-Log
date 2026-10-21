@@ -9,4 +9,4 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 <FilesMatch "(^config(\.example)?\.php$|\.sql$|\.md$)">
   Require all denied
 </FilesMatch>
-RedirectMatch 404 /(\.git|tools)(/|$)
+RedirectMatch 404 /(\.git|tools|migrations)(/|$)
