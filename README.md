@@ -17,6 +17,7 @@ This repository holds two sites that share one database:
 - **Diaper frequency:** how often any, wet and dirty diapers are changed.
 - **Age and birthday:** shown in the header, for example "1 week, 5 days old · day 13".
 - **Alerts:** an in-page banner when a diaper is overdue (2 h 15 min by default), plus phone notifications through the free [ntfy](https://ntfy.sh) app, run by a cron job.
+- **Free diaper pickups:** track monthly pickups from local programs (Forward, CIP, Good Neighbor or any place you add). Each place shows when you can go again, and a phone reminder arrives on that day.
 - **Design:** a nursery theme with light and dark modes, works on phones, and uses only original SVG illustrations.
 - **babylog only:**
   - email verification, admin approval and password reset by email

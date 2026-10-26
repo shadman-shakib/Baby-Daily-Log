@@ -231,6 +231,20 @@ html,body{overflow-x:hidden}
   .actions{flex-direction:column-reverse}
   .actions .btn{width:100%;min-height:44px}
 }
+
+/* ---- Free diaper pickups ---- */
+.supgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.supcard{border:1px solid var(--line);background:var(--bg);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:6px;text-align:left;color:var(--fg);font:inherit;cursor:pointer;min-width:0}
+.supcard:hover{border-color:var(--diaper)}
+.supcard b{font-family:var(--display);font-size:1.05rem}
+.supcard .muted{color:var(--muted);font-size:.85rem}
+.supcard .tap{color:var(--diaper);font-weight:700;font-size:.85rem;margin-top:2px}
+.pill.ready{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);margin-left:0;align-self:flex-start}
+.pill.wait{background:var(--feed-soft);color:var(--feed);margin-left:0;align-self:flex-start}
+.pill.none{background:var(--line);color:var(--muted);margin-left:0;align-self:flex-start}
+.supform{display:flex;flex-direction:column;gap:12px;border-top:1px dashed var(--line);padding-top:12px}
+.suphist summary{cursor:pointer;color:var(--muted);font-weight:700;font-size:.9rem;padding:4px 0}
+.chip.supply{background:var(--diaper-soft);color:var(--diaper)}
 </style>
 </head>
 <body>
@@ -599,6 +613,26 @@ html,body{overflow-x:hidden}
     <div class="chart" id="weightChart"></div>
   </section>
 
+  <section class="panel" aria-label="Free diaper pickups" id="supPanel">
+    <div class="milk-top">
+      <h2>Free diaper pickups</h2>
+      <button type="button" class="btn" id="supAddBtn">+ Log a pickup</button>
+    </div>
+    <p class="mnote" id="supSum">Once a month from each place. Tap a place after you pick up diapers.</p>
+    <div class="supgrid" id="supCards"></div>
+    <form class="supform" id="supForm" hidden>
+      <div class="row">
+        <div class="field"><label class="label" for="supSrc">Place</label><input type="text" id="supSrc" list="supSrcList" maxlength="40" required><datalist id="supSrcList"></datalist></div>
+        <div class="field"><label class="label" for="supDate">Date</label><input type="date" id="supDate" required></div>
+        <div class="field"><label class="label" for="supQty">Diapers (optional)</label><input type="number" id="supQty" min="0" step="1" inputmode="numeric" placeholder="e.g. 50"></div>
+      </div>
+      <div class="field"><label class="label" for="supNote">Note</label><input type="text" id="supNote" maxlength="120" placeholder="Size, brand… (optional)"></div>
+      <p class="err" id="supErr" hidden></p>
+      <div class="actions"><button type="button" class="btn" id="supCancel">Cancel</button><button type="submit" class="btn primary" id="supSave">Save pickup</button></div>
+    </form>
+    <details class="suphist"><summary>Pickup history</summary><ul class="tl" id="supHist"></ul></details>
+  </section>
+
   <section class="panel" aria-label="Timeline">
     <div class="daynav">
       <button id="prev" aria-label="Previous day">‹</button>
@@ -820,7 +854,7 @@ $("form").addEventListener("submit",async e=>{
 
 async function refresh(){
   if(!babyId)return;
-  try{const j=await api("list",{babyId});logs=j.logs;loaded=true;notice("");render()}
+  try{const j=await api("list",{babyId});logs=j.logs;loaded=true;notice("");render();loadSupplies()}
   catch(err){if(err.message!=="auth")notice("Couldn't load entries. Check your connection.")}
 }
 
@@ -1130,6 +1164,59 @@ $("daLog").onclick=()=>openForm("diaper");
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!$("app").hidden)refresh()});
 
 render();
+
+// ---- Free diaper pickups ----
+const SUP_DEFAULT=["Forward","CIP","Good Neighbor"];
+let supplies=[];
+const supArg=()=>(typeof babyId!=="undefined"?{babyId}:{});
+const supDay=iso=>{const [y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d)};
+const supNext=iso=>{const [y,m,d]=iso.split("-").map(Number);const last=new Date(y,m+1,0).getDate();return new Date(y,m,Math.min(d,last))};
+const supFmt=dt=>dt.toLocaleDateString([], {month:"short",day:"numeric"});
+async function loadSupplies(){try{const j=await api("supplyList",supArg());supplies=j.supplies||[];renderSupplies()}catch(e){}}
+function renderSupplies(){
+  const seen=new Map();[...SUP_DEFAULT,...supplies.map(x=>x.source)].forEach(n=>{const k=n.trim().toLowerCase();if(k&&!seen.has(k))seen.set(k,n.trim())});
+  const names=[...seen.values()], today=startOfDay(Date.now());
+  $("supSrcList").innerHTML="";names.forEach(n=>{const o=document.createElement("option");o.value=n;$("supSrcList").appendChild(o)});
+  const box=$("supCards");box.innerHTML="";
+  names.forEach(n=>{
+    const last=supplies.find(x=>x.source.trim().toLowerCase()===n.toLowerCase());
+    const c=document.createElement("button");c.type="button";c.className="supcard";
+    const t=document.createElement("b");t.textContent=n;c.appendChild(t);
+    const pill=document.createElement("span");pill.className="pill";
+    const info=document.createElement("span");info.className="muted";
+    if(!last){pill.classList.add("none");pill.textContent="Not logged yet";info.textContent="No pickups yet"}
+    else{const nx=supNext(last.date),days=Math.round((nx-today)/864e5);
+      if(days<=0){pill.classList.add("ready");pill.textContent=days===0?"Ready today":"Ready now"}
+      else{pill.classList.add("wait");pill.textContent="Next "+supFmt(nx)+" · in "+days+(days===1?" day":" days")}
+      info.textContent="Last "+supFmt(supDay(last.date))+(last.qty?" · "+last.qty+" diapers":"")}
+    const tap=document.createElement("span");tap.className="tap";tap.textContent="Got them today →";
+    c.append(pill,info,tap);c.onclick=()=>supOpen(n);box.appendChild(c)});
+  const since=new Date(today);since.setDate(since.getDate()-30);
+  const recent=supplies.filter(x=>supDay(x.date)>=since);const tot=recent.reduce((a,x)=>a+(x.qty||0),0);
+  $("supSum").textContent=recent.length?`Last 30 days: ${recent.length} pickup${recent.length>1?"s":""}${tot?", "+tot+" diapers":""}. Once a month from each place.`:"Once a month from each place. Tap a place after you pick up diapers.";
+  const ul=$("supHist");ul.innerHTML="";
+  if(!supplies.length){const li=document.createElement("li");li.className="empty";li.style.display="block";li.textContent="No pickups logged yet.";ul.appendChild(li)}
+  supplies.slice(0,50).forEach(x=>{
+    const li=document.createElement("li");
+    const t=document.createElement("span");t.className="t";t.textContent=supFmt(supDay(x.date));
+    const w=document.createElement("div");w.className="what";
+    const b=document.createElement("b");const ch=document.createElement("span");ch.className="chip supply";ch.textContent="Pickup";b.append(ch,x.source);w.appendChild(b);
+    const ex=[x.qty?x.qty+" diapers":"",x.note||"",x.byName&&typeof me!=="undefined"&&me&&x.byName!==me.name?"by "+x.byName:""].filter(Boolean).join(" · ");
+    if(ex){const em=document.createElement("em");em.textContent=ex;w.appendChild(em)}
+    const del=document.createElement("button");del.className="del";del.type="button";del.textContent="Delete";
+    del.onclick=async()=>{if(!del.classList.contains("armed")){del.classList.add("armed");del.textContent="Confirm";setTimeout(()=>{del.classList.remove("armed");del.textContent="Delete"},3000);return}
+      try{await api("supplyDelete",{...supArg(),id:x.id});await loadSupplies()}catch(e){notice("Couldn't delete that pickup.")}};
+    const acts=document.createElement("div");acts.className="acts";acts.appendChild(del);
+    li.append(t,w,acts);ul.appendChild(li)});
+}
+function supOpen(src){$("supSrc").value=src||"";$("supDate").value=isoDay(Date.now());$("supQty").value="";$("supNote").value="";errOnSup("");
+  $("supForm").hidden=false;(src?$("supQty"):$("supSrc")).focus();$("supForm").scrollIntoView({behavior:"smooth",block:"nearest"})}
+const errOnSup=m=>{$("supErr").textContent=m;$("supErr").hidden=!m};
+$("supAddBtn").onclick=()=>supOpen("");
+$("supCancel").onclick=()=>{$("supForm").hidden=true};
+$("supForm").addEventListener("submit",async e=>{e.preventDefault();errOnSup("");$("supSave").disabled=true;
+  try{await api("supplyAdd",{...supArg(),source:$("supSrc").value.trim(),date:$("supDate").value,qty:+$("supQty").value||null,note:$("supNote").value.trim()});
+    $("supForm").hidden=true;await loadSupplies()}catch(err){if(err.message!=="auth")errOnSup(err.message)}finally{$("supSave").disabled=false}});
 boot();
 })();
 </script>

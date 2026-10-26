@@ -395,6 +395,31 @@ switch ($action) {
     out(['ok' => true]);
   }
 
+  // ---------- free diaper pickups ----------
+  case 'supplyList': {
+    $u = uid(); $bid = (int)($b['babyId'] ?? 0); member($u, $bid);
+    $rows = q("SELECT s.id, s.source, DATE_FORMAT(s.got_date, '%Y-%m-%d') AS date, s.qty, s.note, u.name AS byName
+               FROM bl_supplies s LEFT JOIN bl_users u ON u.id = s.user_id WHERE s.baby_id = ? ORDER BY s.got_date DESC, s.id DESC LIMIT 200", [$bid])->fetchAll();
+    foreach ($rows as &$r) { $r['id'] = (int)$r['id']; $r['qty'] = $r['qty'] !== null ? (int)$r['qty'] : null; }
+    out(['supplies' => $rows]);
+  }
+
+  case 'supplyAdd': {
+    $u = uid(); $bid = (int)($b['babyId'] ?? 0); member($u, $bid);
+    $src = str($b['source'] ?? '', 40); $date = $b['date'] ?? '';
+    if ($src === '') fail('Enter where you got them.', 422);
+    if (!is_string($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) fail('Pick a date.', 422);
+    $qty = isset($b['qty']) && is_numeric($b['qty']) && $b['qty'] > 0 && $b['qty'] < 5000 ? (int)$b['qty'] : null;
+    q('INSERT INTO bl_supplies (baby_id, user_id, source, got_date, qty, note) VALUES (?,?,?,?,?,?)', [$bid, $u, $src, $date, $qty, str($b['note'] ?? '', 120)]);
+    out(['ok' => true]);
+  }
+
+  case 'supplyDelete': {
+    $u = uid(); $bid = (int)($b['babyId'] ?? 0); member($u, $bid);
+    q('DELETE FROM bl_supplies WHERE id = ? AND baby_id = ?', [(int)($b['id'] ?? 0), $bid]);
+    out(['ok' => true]);
+  }
+
   default:
     fail('Unknown action', 404);
 }

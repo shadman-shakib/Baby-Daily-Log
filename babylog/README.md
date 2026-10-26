@@ -7,10 +7,11 @@ Families sign up with their email, confirm it with a 6-digit code, and wait for 
 | File | Purpose |
 |---|---|
 | `index.html` | The whole app UI: sign-in screens, dashboard, charts and Family settings |
-| `api.php` | JSON API: accounts, approval, babies, invites, log entries |
+| `api.php` | JSON API: accounts, approval, babies, invites, log entries, diaper pickups |
 | `lib.php` | Database, SMTP email and ntfy helpers |
 | `notify.php` | Cron script that sends phone alerts for every baby with alerts turned on |
-| `schema.sql` | Creates all `bl_*` tables |
+| `schema.sql` | Creates all `bl_*` tables (new installs) |
+| `migrations/` | Upgrades for existing databases: `001_log_notify.sql` (diaper-changed alerts), `002_supplies.sql` (free diaper pickups). Run them in order in phpMyAdmin. |
 | `config.example.php` | Template for `config.php` |
 | `.htaccess` | Forces HTTPS and hides private files |
 | `tools/import_from_zara.sql` | Copies entries from the standalone `zara` table into this app |

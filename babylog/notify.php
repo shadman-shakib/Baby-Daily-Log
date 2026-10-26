@@ -1,7 +1,7 @@
 <?php
 // Baby Daily Log — phone alerts for every baby that has phone alerts turned on.
 // cPanel cron job, every 5 minutes:
-//   /usr/local/bin/php /home/CPANEL_USER/babylog.msshakib.com/notify.php >/dev/null 2>&1
+//   /usr/local/bin/php /home/CPANEL_USER/babylog.yourdomain.com/notify.php >/dev/null 2>&1
 declare(strict_types=1);
 if (PHP_SAPI !== 'cli') { http_response_code(403); exit("Forbidden\n"); }
 
@@ -58,3 +58,29 @@ foreach ($pdo->query("SELECT id, name, ntfy_topic FROM bl_babies WHERE ntfy_topi
   }
   $save->execute([$b['id'], 'log_seen', $maxId, $now]);
 }
+
+// ---- Free diaper pickups: one reminder on the day each place can be visited again (after 8 AM) ----
+try {
+  $today = new DateTime('today', $tz);
+  if ((int)(new DateTime('now', $tz))->format('G') >= 8) {
+    $supQ = $pdo->prepare('SELECT source, MAX(got_date) AS last FROM bl_supplies WHERE baby_id = ? GROUP BY source');
+    foreach ($pdo->query("SELECT id, name, ntfy_topic FROM bl_babies WHERE ntfy_topic IS NOT NULL AND ntfy_topic <> ''")->fetchAll() as $b) {
+      $supQ->execute([$b['id']]);
+      foreach ($supQ->fetchAll() as $r) {
+        $last = new DateTime($r['last'], $tz);
+        $d = (int)$last->format('j');
+        $due = (clone $last)->modify('first day of next month');
+        $due->setDate((int)$due->format('Y'), (int)$due->format('n'), min($d, (int)$due->format('t')));
+        if ($due > $today) continue;
+        $key = 'sup_' . substr(md5(strtolower(trim($r['source']))), 0, 12);
+        $dueMs = $due->getTimestamp() * 1000;
+        $state->execute([$b['id'], $key]); $prev = $state->fetch();
+        if ($prev && (int)$prev['ref_ms'] === $dueMs) continue;
+        if (ntfy($config, $b['ntfy_topic'], "{$b['name']}: diaper pickup ready", "{$r['source']} — last pickup " . $last->format('M j') . '. You can get diapers again' . ($due == $today ? ' today.' : ' (since ' . $due->format('M j') . ').'), 'gift', 3, $config['site_url'] ?? '')) {
+          $save->execute([$b['id'], $key, $dueMs, $now]);
+          echo "baby {$b['id']} pickup reminder {$r['source']} sent\n";
+        }
+      }
+    }
+  }
+} catch (Throwable $e) { echo "pickup reminders skipped: " . $e->getMessage() . "\n"; }

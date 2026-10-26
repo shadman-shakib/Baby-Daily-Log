@@ -1,9 +1,9 @@
 <?php
 // Zara's Daily Log — phone alerts through the ntfy app.
 // Run by a cPanel cron job every 5 minutes:
-//   /usr/local/bin/php /home/CPANEL_USER/zara.msshakib.com/notify.php
+//   /usr/local/bin/php /home/CPANEL_USER/zara.yourdomain.com/notify.php
 // Send a test notification:   php notify.php test
-// Or from a browser:          https://zara.msshakib.com/notify.php?key=YOUR_NOTIFY_KEY&test=1
+// Or from a browser:          https://zara.yourdomain.com/notify.php?key=YOUR_NOTIFY_KEY&test=1
 declare(strict_types=1);
 
 $config = require __DIR__ . '/config.php';
@@ -97,4 +97,29 @@ if ($logTypes) {
     }
   }
   $pdo->prepare('REPLACE INTO alert_state (name, ref_ms, sent_ms) VALUES (?,?,?)')->execute(['log_seen', $maxId, $now]);
+}
+
+// ---- Free diaper pickups: one reminder on the day each place can be visited again (after 8 AM) ----
+$baby = (int)($config['baby_id'] ?? 0);
+if ($baby && ($config['pickup_reminders'] ?? true)) {
+  try {
+    $today = new DateTime('today', $tz);
+    if ((int)(new DateTime('now', $tz))->format('G') >= 8) {
+      $rows = $pdo->query("SELECT source, MAX(got_date) AS last FROM bl_supplies WHERE baby_id = $baby GROUP BY source")->fetchAll();
+      foreach ($rows as $r) {
+        $last = new DateTime($r['last'], $tz);
+        $d = (int)$last->format('j');
+        $due = (clone $last)->modify('first day of next month');
+        $due->setDate((int)$due->format('Y'), (int)$due->format('n'), min($d, (int)$due->format('t')));
+        if ($due > $today) continue;
+        $key = 'sup_' . substr(md5(strtolower(trim($r['source']))), 0, 12);
+        $dueMs = $due->getTimestamp() * 1000;
+        $st = $pdo->prepare('SELECT ref_ms FROM alert_state WHERE name = ?'); $st->execute([$key]);
+        if ((int)$st->fetchColumn() === $dueMs) continue; // already reminded for this pickup
+        $ok = send($server, $topic, 'Diaper pickup ready: ' . $r['source'], 'Last pickup ' . $last->format('M j') . '. You can get diapers again' . ($due == $today ? ' today.' : ' (since ' . $due->format('M j') . ').'), $site, 'gift', 3);
+        if ($ok) $pdo->prepare('REPLACE INTO alert_state (name, ref_ms, sent_ms) VALUES (?,?,?)')->execute([$key, $dueMs, $now]);
+        echo "pickup reminder {$r['source']}: " . ($ok ? 'sent' : 'failed') . "\n";
+      }
+    }
+  } catch (Throwable $e) { echo "pickup reminders skipped: " . $e->getMessage() . "\n"; }
 }

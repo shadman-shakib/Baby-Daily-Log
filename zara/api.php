@@ -102,6 +102,31 @@ switch ($action) {
     $st->execute([(int)($body['id'] ?? 0)]);
     out(['ok' => true]);
 
+  // ---------- free diaper pickups (shared mode only) ----------
+  case 'supplyList':
+    if (!$BABY) out(['supplies' => [], 'error' => 'Diaper pickups need shared mode (baby_id in config.php).']);
+    $st = $pdo->prepare("SELECT s.id, s.source, DATE_FORMAT(s.got_date, '%Y-%m-%d') AS date, s.qty, s.note, u.name AS byName
+                         FROM bl_supplies s LEFT JOIN bl_users u ON u.id = s.user_id WHERE s.baby_id = ? ORDER BY s.got_date DESC, s.id DESC LIMIT 200");
+    $st->execute([$BABY]);
+    $rows = $st->fetchAll();
+    foreach ($rows as &$r) { $r['id'] = (int)$r['id']; $r['qty'] = $r['qty'] !== null ? (int)$r['qty'] : null; }
+    out(['supplies' => $rows]);
+
+  case 'supplyAdd':
+    if (!$BABY) out(['error' => 'Diaper pickups need shared mode.'], 422);
+    $src = mb_substr(trim((string)($body['source'] ?? '')), 0, 40); $date = $body['date'] ?? '';
+    if ($src === '') out(['error' => 'Enter where you got them.'], 422);
+    if (!is_string($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) out(['error' => 'Pick a date.'], 422);
+    $qty = isset($body['qty']) && is_numeric($body['qty']) && $body['qty'] > 0 && $body['qty'] < 5000 ? (int)$body['qty'] : null;
+    $pdo->prepare('INSERT INTO bl_supplies (baby_id, user_id, source, got_date, qty, note) VALUES (?,?,?,?,?,?)')
+        ->execute([$BABY, $USER, $src, $date, $qty, mb_substr(trim((string)($body['note'] ?? '')), 0, 120)]);
+    out(['ok' => true]);
+
+  case 'supplyDelete':
+    if (!$BABY) out(['error' => 'Diaper pickups need shared mode.'], 422);
+    $pdo->prepare('DELETE FROM bl_supplies WHERE id = ? AND baby_id = ?')->execute([(int)($body['id'] ?? 0), $BABY]);
+    out(['ok' => true]);
+
   default:
     out(['error' => 'Unknown action'], 404);
 }
