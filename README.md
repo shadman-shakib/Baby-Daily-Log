@@ -13,6 +13,7 @@ This repository holds two sites that share one database:
 
 - **Logging:** feeds (breast L/R, breast-milk bottle, formula), diapers (wet / dirty / both), pumping (time and ml), weight (kg or lb, stored in grams). Every entry can be edited or deleted.
 - **Today at a glance:** time since the last feed, feeds and ml today, wet and dirty counts, and time since the last wet or dirty diaper.
+- **Milk record:** the most milk in one day since birth, with a bar showing how today compares.
 - **Charts:** last 7 days, day-to-day change, milk intake, diaper changes, pumping and weight. Ranges run from Today, Yesterday, 3 days, 1 week, 1 month and 3 months to custom dates.
 - **Diaper frequency:** how often any, wet and dirty diapers are changed.
 - **Age and birthday:** shown in the header, for example "1 week, 5 days old · day 13".

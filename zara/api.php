@@ -66,7 +66,16 @@ switch ($action) {
       $r['weightG'] = $r['weightG'] !== null ? (int)$r['weightG'] : null;
       return $r;
     }, $st->fetchAll());
-    out(['logs' => $rows]);
+    // Most milk in one day since birth (all history, not just the last ~3 months)
+    $tz = new DateTimeZone((string)($config['timezone'] ?? 'America/Chicago'));
+    $days = [];
+    foreach ($pdo->query("SELECT time_ms, amount_ml FROM $T WHERE {$W}type = 'feed' AND amount_ml > 0")->fetchAll() as $f) {
+      $k = (new DateTime('@' . intdiv((int)$f['time_ms'], 1000)))->setTimezone($tz)->format('Y-m-d');
+      $days[$k] = ($days[$k] ?? 0) + (float)$f['amount_ml'];
+    }
+    $best = null;
+    foreach ($days as $k => $ml) if (!$best || $ml > $best['ml']) $best = ['day' => $k, 'ml' => $ml];
+    out(['logs' => $rows, 'milkBest' => $best]);
 
   case 'add':
   case 'update':

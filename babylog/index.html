@@ -245,22 +245,61 @@ html,body{overflow-x:hidden}
 .supform{display:flex;flex-direction:column;gap:12px;border-top:1px dashed var(--line);padding-top:12px}
 .suphist summary{cursor:pointer;color:var(--muted);font-weight:700;font-size:.9rem;padding:4px 0}
 .chip.supply{background:var(--diaper-soft);color:var(--diaper)}
+
+/* ---- Most milk in a day ---- */
+.stat.best{background:linear-gradient(135deg,color-mix(in srgb,#ffd86e 22%,var(--surface)),var(--surface))}
+.stat.best .label{display:flex;align-items:center;gap:5px}
+.stat.best .label svg{width:15px;height:15px;fill:none;stroke:#e0a400;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.stat.best .v small{font-size:.9rem;font-weight:600;color:var(--muted);margin-left:2px}
+.stat.best.rec .d{color:var(--weight);font-weight:700}
+.stat.best{grid-column:1/-1}
+.stat.best .brow{display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap}
+.stat.best .bar{display:block;height:8px;border-radius:99px;background:color-mix(in srgb,#ffd86e 25%,var(--line));overflow:hidden;margin-top:4px}
+.stat.best .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--feed),#ffc94a);transition:width .6s ease}
+
+/* ---- Side art motion ---- */
+@media (prefers-reduced-motion:no-preference){
+  .side .sway{transform-origin:130px 0;animation:sway 7s ease-in-out infinite}
+  .side .float{animation:floaty 6s ease-in-out infinite}
+  .side .bob{animation:floaty 4.5s ease-in-out infinite}
+  .side .kite{transform-origin:0 0;animation:kite 5s ease-in-out infinite}
+  .side .flap{transform-box:fill-box;transform-origin:center;animation:flap .9s ease-in-out infinite}
+  .side .tw{transform-box:fill-box;transform-origin:center;animation:tw 3s ease-in-out infinite}
+  .side .tw:nth-of-type(3n){animation-delay:1s}.side .tw:nth-of-type(3n+1){animation-delay:2s}
+  .side .rays{transform-box:fill-box;transform-origin:center;animation:spin 30s linear infinite}
+  .side .heart{transform-box:fill-box;transform-origin:center;animation:heart 4s ease-in-out infinite}
+  .side .heart.h2{animation-delay:1.3s}.side .heart.h3{animation-delay:2.6s}
+  .side .bird{animation:floaty 3.5s ease-in-out infinite}
+}
+@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes kite{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes flap{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.55)}}
+@keyframes tw{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes heart{0%{opacity:0;transform:translateY(8px) scale(.6)}30%{opacity:1}100%{opacity:0;transform:translateY(-26px) scale(1.1)}}
 </style>
 </head>
 <body>
 <svg class="side l" viewBox="0 0 260 820" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
   <g transform="translate(20 40) scale(1.1)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g><g transform="translate(150 150) scale(.8)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g>
+  <g class="sway">
   <path d="M40 0v120M95 0v180M150 0v100M205 0v150" stroke="var(--muted)" stroke-width="1" opacity=".35"/>
   <path d="M40 119l3.3 7.7 7.7 3.3-7.7 3.3-3.3 7.7-3.3-7.7-7.7-3.3 7.7-3.3z" fill="#ffd86e"/><path d="M150 100l3.0 7.0 7.0 3.0-7.0 3.0-3.0 7.0-3.0-7.0-7.0-3.0 7.0-3.0z" fill="#c9a8ff"/><path d="M205 149l3.3 7.7 7.7 3.3-7.7 3.3-3.3 7.7-3.3-7.7-7.7-3.3 7.7-3.3z" fill="#ffa3bd"/>
   <path d="M95 182a14 14 0 1 0 14 18 10 10 0 1 1-14-18z" fill="#ffd86e"/>
-  <g transform="translate(120 360)">
+  </g>
+  <g transform="translate(120 360)"><g class="float">
     <path d="M-40 26q14 36 30 50M40 26q-14 36-30 50" stroke="#b98a5e" stroke-width="1.6" fill="none"/>
     <ellipse rx="48" ry="54" fill="#ffa3bd"/><ellipse rx="28" ry="54" fill="#ffd86e"/><ellipse rx="10" ry="54" fill="#ffa3bd"/>
     <ellipse cx="-20" cy="-26" rx="8" ry="14" fill="#fff" opacity=".45"/>
     <rect x="-14" y="74" width="28" height="20" rx="5" fill="#d4a373"/><path d="M-14 80h28" stroke="#b98a5e" stroke-width="1.5"/>
-  </g>
-  <path d="M40 294l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)"/><path d="M220 245l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="var(--star)"/><path d="M200 464l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)"/><circle cx="60" cy="520" r="2.4" fill="var(--star)"/><circle cx="230" cy="560" r="2" fill="var(--star)"/>
-  <g transform="translate(150 230) rotate(-8) scale(.9)"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#9cd2ff"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#9cd2ff"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#c9a8ff"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#c9a8ff"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g>
+  </g></g>
+  <path d="M40 294l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)" class="tw"/><path d="M220 245l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="var(--star)" class="tw"/><path d="M200 464l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)" class="tw"/><circle cx="60" cy="520" r="2.4" fill="var(--star)" class="tw"/><circle cx="230" cy="560" r="2" fill="var(--star)" class="tw"/>
+  <g transform="translate(150 230) rotate(-8) scale(0.9)"><g class="flap"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#9cd2ff"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#9cd2ff"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#c9a8ff"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#c9a8ff"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g></g>
+  <g transform="translate(130 575)"><path d="M-66 0a66 66 0 0 1 132 0" stroke="#ffa3bd" stroke-width="10" fill="none"/><path d="M-56 0a56 56 0 0 1 112 0" stroke="#ffd86e" stroke-width="10" fill="none"/><path d="M-46 0a46 46 0 0 1 92 0" stroke="#a8dfb8" stroke-width="10" fill="none"/><path d="M-36 0a36 36 0 0 1 72 0" stroke="#9cd2ff" stroke-width="10" fill="none"/><path d="M-26 0a26 26 0 0 1 52 0" stroke="#c9a8ff" stroke-width="10" fill="none"/></g>
+  <g transform="translate(36 556) scale(0.55)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)"/></g><g transform="translate(184 556) scale(0.55)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)"/></g>
+  <g transform="translate(52 470) rotate(10) scale(0.8)"><g class="flap"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#ffd86e"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#ffd86e"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffa3bd"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffa3bd"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g></g>
+  <path class="tw" d="M225 499l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z" fill="var(--star)"/><path class="tw" d="M30 615l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="#c9a8ff"/>
   <path d="M0 820V770q32-16 65 0t65 0 65 0 65 0v50z" fill="#bfe8c9"/><path d="M0 820v-30q40-12 80 0t90 0 90 0v30z" fill="#a8dfb8"/>
   <g transform="translate(118 712)">
     <ellipse cx="-12" cy="-74" rx="9" ry="27" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/><ellipse cx="-12" cy="-72" rx="4" ry="18" fill="#ffc6d6"/>
@@ -273,26 +312,31 @@ html,body{overflow-x:hidden}
     <ellipse cx="0" cy="22" rx="16" ry="17" fill="#fff4f8"/>
     <ellipse cx="-18" cy="44" rx="12" ry="7" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/><ellipse cx="18" cy="44" rx="12" ry="7" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/>
   </g>
-  <g transform="translate(40 740) scale(1)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffa3bd"/><circle cx="6" r="5" fill="#ffa3bd"/><circle cx="-6" r="5" fill="#ffa3bd"/><circle cx="3.5" cy="6" r="5" fill="#ffa3bd"/><circle cx="-3.5" cy="6" r="5" fill="#ffa3bd"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(215 748) scale(0.9)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#c9a8ff"/><circle cx="6" r="5" fill="#c9a8ff"/><circle cx="-6" r="5" fill="#c9a8ff"/><circle cx="3.5" cy="6" r="5" fill="#c9a8ff"/><circle cx="-3.5" cy="6" r="5" fill="#c9a8ff"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(185 770) scale(0.75)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#9cd2ff"/><circle cx="6" r="5" fill="#9cd2ff"/><circle cx="-6" r="5" fill="#9cd2ff"/><circle cx="3.5" cy="6" r="5" fill="#9cd2ff"/><circle cx="-3.5" cy="6" r="5" fill="#9cd2ff"/><circle r="3.6" fill="#ffd86e"/></g>
+  <g transform="translate(40 740) scale(1)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffa3bd"/><circle cx="6" r="5" fill="#ffa3bd"/><circle cx="-6" r="5" fill="#ffa3bd"/><circle cx="3.5" cy="6" r="5" fill="#ffa3bd"/><circle cx="-3.5" cy="6" r="5" fill="#ffa3bd"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(62 770) scale(0.7)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#9cd2ff"/><circle cx="6" r="5" fill="#9cd2ff"/><circle cx="-6" r="5" fill="#9cd2ff"/><circle cx="3.5" cy="6" r="5" fill="#9cd2ff"/><circle cx="-3.5" cy="6" r="5" fill="#9cd2ff"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(200 742)"><rect x="-26" y="0" width="25" height="25" rx="5" fill="#ffa3bd"/><text x="-13.5" y="18" text-anchor="middle" font-family="var(--display)" font-weight="700" font-size="15" fill="#fff">A</text><rect x="1" y="0" width="25" height="25" rx="5" fill="#9cd2ff"/><text x="13.5" y="18" text-anchor="middle" font-family="var(--display)" font-weight="700" font-size="15" fill="#fff">B</text><rect x="-12" y="-26" width="25" height="25" rx="5" fill="#ffd86e"/><text x=".5" y="-8" text-anchor="middle" font-family="var(--display)" font-weight="700" font-size="15" fill="#fff">C</text></g>
 </svg>
 <svg class="side r" viewBox="0 0 260 820" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+  <g transform="translate(48 92)"><g class="rays"><path d="M0 -27v-8" transform="rotate(0)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(45)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(90)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(135)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(180)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(225)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(270)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/><path d="M0 -27v-8" transform="rotate(315)" stroke="#ffd86e" stroke-width="3.2" stroke-linecap="round"/></g><circle r="20" fill="#ffd86e"/><path d="M-9 -3q3-3 6 0M3 -3q3-3 6 0" stroke="#2b2540" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M-5 5q5 5 10 0" stroke="#2b2540" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="-12" cy="4" r="3.5" fill="#ffa3bd" opacity=".8"/><circle cx="12" cy="4" r="3.5" fill="#ffa3bd" opacity=".8"/></g>
   <g transform="translate(150 30) scale(1.1)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g><g transform="translate(10 200) scale(.8)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)" opacity=".9"/></g>
-  <g transform="translate(120 130) rotate(12)">
+  <g transform="translate(120 130) rotate(12)"><g class="kite">
     <path d="M0 -50L36 0 0 56-36 0z" fill="#9cd2ff"/><path d="M0 -50L36 0H0z" fill="#c9a8ff"/><path d="M0 56L-36 0H0z" fill="#ffd86e"/>
     <path d="M0 -50V56M-36 0H36" stroke="#fff" stroke-width="1.6" opacity=".8"/>
     <path d="M0 56q-18 40 8 70t-6 80" stroke="var(--muted)" stroke-width="1.2" fill="none" opacity=".6"/>
     <path d="M-6 90l-9-5v10zM-6 90l9-5v10z" fill="#ffa3bd"/><path d="M4 140l-9-5v10zM4 140l9-5v10z" fill="#ffd86e"/>
-  </g>
-  <path d="M40 82l2.4 5.6 5.6 2.4-5.6 2.4-2.4 5.6-2.4-5.6-5.6-2.4 5.6-2.4z" fill="var(--star)"/><path d="M230 294l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)"/><path d="M30 375l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="var(--star)"/><circle cx="210" cy="230" r="2.4" fill="var(--star)"/>
-  <g transform="translate(130 470)">
+  </g></g>
+  <path d="M230 294l1.7999999999999998 4.2 4.2 1.7999999999999998-4.2 1.7999999999999998-1.7999999999999998 4.2-1.7999999999999998-4.2-4.2-1.7999999999999998 4.2-1.7999999999999998z" fill="var(--star)" class="tw"/><path d="M30 375l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="var(--star)" class="tw"/><circle cx="210" cy="230" r="2.4" fill="var(--star)" class="tw"/>
+  <g transform="translate(130 470)"><g class="bob">
     <path d="M-62 -2q-30-30-40-6 14 4 12 26z" fill="#86c4f5"/>
     <ellipse rx="66" ry="44" fill="#9cd2ff"/><path d="M-60 16q60 40 120 0q-10 26-60 28-50-2-60-28z" fill="#e4f3ff"/>
     <circle cx="34" cy="-8" r="4" fill="#2b2540"/><circle cx="35.4" cy="-9.4" r="1.3" fill="#fff"/><circle cx="44" cy="4" r="6" fill="#ffc6d6" opacity=".8"/>
     <path d="M30 6q6 5 12 0" stroke="#2b2540" stroke-width="1.6" fill="none" stroke-linecap="round"/>
     <path d="M10 -46q-2-14 6-22M10 -46q-8-10-18-10M10 -46q10-8 20-4" stroke="#86c4f5" stroke-width="3" fill="none" stroke-linecap="round"/>
     <circle cx="16" cy="-70" r="4" fill="#bfe1ff"/><circle cx="-10" cy="-58" r="3.4" fill="#bfe1ff"/><circle cx="32" cy="-52" r="3.4" fill="#bfe1ff"/>
-  </g>
-  <g transform="translate(70 590) rotate(14)"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#ffb3d1"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#ffb3d1"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffd86e"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffd86e"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g>
+  </g></g>
+  <g transform="translate(70 590) rotate(14) scale(1)"><g class="flap"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#ffb3d1"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#ffb3d1"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffd86e"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffd86e"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g></g>
+  <g class="bird"><path d="M180 360q8-8 14 0q6-8 14 0" stroke="#7a6aa8" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M206 384q6-6 11 0q5-6 11 0" stroke="#7a6aa8" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+  <g transform="translate(150 600) scale(0.6)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)"/></g>
+  <path class="heart h1" d="M186 670c-7-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12z" fill="#ffa3bd"/><path class="heart h2" d="M205 646c-7-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12z" fill="#c9a8ff"/><path class="heart h3" d="M190 622c-7-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12z" fill="#ffd86e"/>
+  <path class="tw" d="M225 414l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z" fill="#ffd86e"/><path class="tw" d="M30 515l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="#c9a8ff"/>
   <path d="M0 820V770q32-16 65 0t65 0 65 0 65 0v50z" fill="#bfe8c9"/><path d="M0 820v-30q40-12 80 0t90 0 90 0v30z" fill="#a8dfb8"/>
   <g transform="translate(120 724)">
     <path d="M-42 6q-12-4-14 6" stroke="#b9a4ea" stroke-width="3" fill="none" stroke-linecap="round"/>
@@ -303,7 +347,7 @@ html,body{overflow-x:hidden}
     <path d="M60 -12q18 18 6 40" stroke="#c9b8ef" stroke-width="12" fill="none" stroke-linecap="round"/>
     <circle cx="46" cy="-26" r="3.4" fill="#2b2540"/><circle cx="47.2" cy="-27.2" r="1.1" fill="#fff"/><circle cx="54" cy="-14" r="5" fill="#ffc6d6" opacity=".8"/>
   </g>
-  <g transform="translate(30 752) scale(0.9)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffd86e"/><circle cx="6" r="5" fill="#ffd86e"/><circle cx="-6" r="5" fill="#ffd86e"/><circle cx="3.5" cy="6" r="5" fill="#ffd86e"/><circle cx="-3.5" cy="6" r="5" fill="#ffd86e"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(225 742) scale(1)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffa3bd"/><circle cx="6" r="5" fill="#ffa3bd"/><circle cx="-6" r="5" fill="#ffa3bd"/><circle cx="3.5" cy="6" r="5" fill="#ffa3bd"/><circle cx="-3.5" cy="6" r="5" fill="#ffa3bd"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(200 772) scale(0.75)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#c9a8ff"/><circle cx="6" r="5" fill="#c9a8ff"/><circle cx="-6" r="5" fill="#c9a8ff"/><circle cx="3.5" cy="6" r="5" fill="#c9a8ff"/><circle cx="-3.5" cy="6" r="5" fill="#c9a8ff"/><circle r="3.6" fill="#ffd86e"/></g>
+  <g transform="translate(34 744)"><ellipse cx="0" cy="8" rx="18" ry="12" fill="#ffd86e"/><path d="M-18 4q-6-8 2-10" fill="#ffd86e"/><circle cx="10" cy="-8" r="10" fill="#ffd86e"/><path d="M18 -8l9 2-9 4z" fill="#ff9a62"/><circle cx="12" cy="-11" r="2" fill="#2b2540"/><circle cx="13" cy="-4" r="2.6" fill="#ffa3bd" opacity=".7"/><path d="M-6 8q6 6 12 0" stroke="#f0c040" stroke-width="2" fill="none" stroke-linecap="round"/></g><g transform="translate(225 742) scale(1)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#ffa3bd"/><circle cx="6" r="5" fill="#ffa3bd"/><circle cx="-6" r="5" fill="#ffa3bd"/><circle cx="3.5" cy="6" r="5" fill="#ffa3bd"/><circle cx="-3.5" cy="6" r="5" fill="#ffa3bd"/><circle r="3.6" fill="#ffd86e"/></g><g transform="translate(200 772) scale(0.75)"><path d="M0 4v22" stroke="#6cc796" stroke-width="2.4"/><path d="M0 18q-9-2-10-9 8 1 10 9z" fill="#7fd6a6"/><circle cy="-6" r="5" fill="#c9a8ff"/><circle cx="6" r="5" fill="#c9a8ff"/><circle cx="-6" r="5" fill="#c9a8ff"/><circle cx="3.5" cy="6" r="5" fill="#c9a8ff"/><circle cx="-3.5" cy="6" r="5" fill="#c9a8ff"/><circle r="3.6" fill="#ffd86e"/></g>
 </svg>
 
 
@@ -504,6 +548,7 @@ html,body{overflow-x:hidden}
       <div class="stat"><span class="label">Feeds today</span><span class="v num" id="feedsToday">0</span><span class="d" id="mlToday">0 ml by bottle</span></div>
       <div class="stat"><span class="label">Wet today</span><span class="v num" id="wetToday">0</span><span class="d" id="wetLast">incl. both</span></div>
       <div class="stat"><span class="label">Dirty today</span><span class="v num" id="dirtyToday">0</span><span class="d" id="dirtyLast">incl. both</span></div>
+      <div class="stat best" id="bestBox"><span class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6M10 17h4"/></svg>Most milk in a day</span><span class="brow"><span class="v num" id="bestMl">—</span><span class="d" id="bestD">No bottle feeds yet</span></span><span class="bar" aria-hidden="true"><i id="bestBar"></i></span></div>
     </div>
   </section>
 
@@ -854,7 +899,7 @@ $("form").addEventListener("submit",async e=>{
 
 async function refresh(){
   if(!babyId)return;
-  try{const j=await api("list",{babyId});logs=j.logs;loaded=true;notice("");render();loadSupplies()}
+  try{const j=await api("list",{babyId});logs=j.logs;milkBest=j.milkBest||null;loaded=true;notice("");render();loadSupplies()}
   catch(err){if(err.message!=="auth")notice("Couldn't load entries. Check your connection.")}
 }
 
@@ -1079,12 +1124,26 @@ function renderDiaper(now,today,DAY){
   $("diaperChart").innerHTML=svg+"</svg>";
 }
 
+let milkBest=null;
+function renderBest(now,today){
+  const byDay={};
+  logs.forEach(l=>{if(l.type==="feed"&&l.amountMl>0&&l.time<=now){const k=startOfDay(l.time).getTime();byDay[k]=(byDay[k]||0)+l.amountMl}});
+  let bt=0,bm=0;for(const k in byDay)if(byDay[k]>bm){bm=byDay[k];bt=+k}
+  if(milkBest&&milkBest.ml>bm){bm=milkBest.ml;const [y,m,d]=milkBest.day.split("-").map(Number);bt=new Date(y,m-1,d).getTime()}
+  const box=$("bestBox"),todayMl=byDay[today]||0;
+  if(!bm){$("bestMl").textContent="—";$("bestD").textContent="No bottle feeds yet";box.classList.remove("rec");$("bestBar").style.width="0";return}
+  $("bestMl").innerHTML=Math.round(bm)+"<small>ml</small>";
+  $("bestBar").style.width=Math.min(100,todayMl/bm*100)+"%";
+  const isToday=bt===today;box.classList.toggle("rec",isToday);
+  $("bestD").textContent=isToday?"Today! New record 🎉":new Date(bt).toLocaleDateString([], {month:"short",day:"numeric"})+" · today so far "+Math.round(todayMl)+" ml ("+Math.round(todayMl/bm*100)+"% of record)";
+}
 function render(){
   const now=Date.now(), today=startOfDay(now).getTime(), DAY=864e5;
   const todays=logs.filter(l=>l.time>=today&&l.time<today+DAY);
   const feeds=todays.filter(l=>l.type==="feed");
   $("feedsToday").textContent=feeds.length;
   $("mlToday").textContent=feeds.reduce((s,l)=>s+(l.amountMl||0),0)+" ml by bottle";
+  renderBest(now,today);
   $("wetToday").textContent=todays.filter(l=>l.type==="diaper"&&(l.kind==="wet"||l.kind==="both")).length;
   $("dirtyToday").textContent=todays.filter(l=>l.type==="diaper"&&(l.kind==="dirty"||l.kind==="both")).length;
   const lastOf=k=>logs.filter(l=>l.type==="diaper"&&(l.kind===k||l.kind==="both")&&l.time<=now).reduce((m,l)=>Math.max(m,l.time),0);

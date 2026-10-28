@@ -362,7 +362,16 @@ switch ($action) {
       $r['durationMin'] = $r['durationMin'] !== null ? (float)$r['durationMin'] : null;
       $r['weightG'] = $r['weightG'] !== null ? (int)$r['weightG'] : null;
     }
-    out(['logs' => $rows]);
+    unset($r);
+    // Most milk in one day since birth (all history)
+    $days = [];
+    foreach (q("SELECT time_ms, amount_ml FROM bl_logs WHERE baby_id = ? AND type = 'feed' AND amount_ml > 0", [$bid])->fetchAll() as $f) {
+      $k = date('Y-m-d', intdiv((int)$f['time_ms'], 1000));
+      $days[$k] = ($days[$k] ?? 0) + (float)$f['amount_ml'];
+    }
+    $best = null;
+    foreach ($days as $k => $ml) if (!$best || $ml > $best['ml']) $best = ['day' => $k, 'ml' => $ml];
+    out(['logs' => $rows, 'milkBest' => $best]);
   }
 
   case 'add':
