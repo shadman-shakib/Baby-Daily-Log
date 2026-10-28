@@ -56,14 +56,15 @@ $PUMP = ['left', 'right', 'both'];
 switch ($action) {
   case 'list':
     $since = (int)(microtime(true) * 1000) - 100 * 86400000; // last ~3 months
-    $st = $pdo->prepare("SELECT id, type, kind, time_ms AS time, amount_ml AS amountMl, duration_min AS durationMin, weight_g AS weightG, note
-                         FROM $T WHERE $W(time_ms >= ? OR type = ?) ORDER BY time_ms DESC");
-    $st->execute([$since, 'weight']);
+    $st = $pdo->prepare("SELECT id, type, kind, time_ms AS time, amount_ml AS amountMl, duration_min AS durationMin, weight_g AS weightG, length_cm AS lengthCm, note
+                         FROM $T WHERE $W(time_ms >= ? OR type IN (?, ?)) ORDER BY time_ms DESC");
+    $st->execute([$since, 'weight', 'length']);
     $rows = array_map(function ($r) {
       $r['id'] = (int)$r['id']; $r['time'] = (int)$r['time'];
       $r['amountMl'] = $r['amountMl'] !== null ? (float)$r['amountMl'] : null;
       $r['durationMin'] = $r['durationMin'] !== null ? (float)$r['durationMin'] : null;
       $r['weightG'] = $r['weightG'] !== null ? round((float)$r['weightG'], 3) : null;
+      $r['lengthCm'] = $r['lengthCm'] !== null ? round((float)$r['lengthCm'], 3) : null;
       return $r;
     }, $st->fetchAll());
     // Most milk in one day since birth (all history, not just the last ~3 months)
@@ -82,7 +83,7 @@ switch ($action) {
     $type = $body['type'] ?? '';
     $kind = $body['kind'] ?? '';
     $time = $body['time'] ?? null;
-    if (!($type === 'feed' && in_array($kind, $FEED, true)) && !($type === 'diaper' && in_array($kind, $DIAPER, true)) && !($type === 'weight' && $kind === 'weight') && !($type === 'pump' && in_array($kind, $PUMP, true)))
+    if (!($type === 'feed' && in_array($kind, $FEED, true)) && !($type === 'diaper' && in_array($kind, $DIAPER, true)) && !($type === 'weight' && $kind === 'weight') && !($type === 'length' && $kind === 'length') && !($type === 'pump' && in_array($kind, $PUMP, true)))
       out(['error' => 'Invalid type'], 422);
     if (!is_numeric($time)) out(['error' => 'Invalid time'], 422);
     $amt = isset($body['amountMl']) && is_numeric($body['amountMl']) && $body['amountMl'] > 0 ? (float)$body['amountMl'] : null;
@@ -90,19 +91,22 @@ switch ($action) {
     $wg = isset($body['weightG']) && is_numeric($body['weightG']) ? round((float)$body['weightG'], 3) : null; // grams, up to 3 decimals
     if ($type === 'weight' && ($wg === null || $wg < 500 || $wg > 30000)) out(['error' => 'Weight must be between 0.5 and 30 kg'], 422);
     if ($type !== 'weight') $wg = null;
+    $lc = isset($body['lengthCm']) && is_numeric($body['lengthCm']) ? round((float)$body['lengthCm'], 3) : null; // cm, up to 3 decimals
+    if ($type === 'length' && ($lc === null || $lc < 30 || $lc > 130)) out(['error' => 'Length must be between 30 and 130 cm'], 422);
+    if ($type !== 'length') $lc = null;
     $note = mb_substr(trim((string)($body['note'] ?? '')), 0, 200);
     if ($action === 'update') {
       $id = (int)($body['id'] ?? 0);
-      $st = $pdo->prepare("UPDATE $T SET type = ?, kind = ?, time_ms = ?, amount_ml = ?, duration_min = ?, weight_g = ?, note = ? WHERE {$W}id = ?");
-      $st->execute([$type, $kind, (int)$time, $amt, $dur, $wg, $note, $id]);
+      $st = $pdo->prepare("UPDATE $T SET type = ?, kind = ?, time_ms = ?, amount_ml = ?, duration_min = ?, weight_g = ?, length_cm = ?, note = ? WHERE {$W}id = ?");
+      $st->execute([$type, $kind, (int)$time, $amt, $dur, $wg, $lc, $note, $id]);
       out(['ok' => true, 'id' => $id]);
     }
     if ($BABY) {
-      $st = $pdo->prepare('INSERT INTO bl_logs (baby_id, user_id, type, kind, time_ms, amount_ml, duration_min, weight_g, note) VALUES (?,?,?,?,?,?,?,?,?)');
-      $st->execute([$BABY, $USER, $type, $kind, (int)$time, $amt, $dur, $wg, $note]);
+      $st = $pdo->prepare('INSERT INTO bl_logs (baby_id, user_id, type, kind, time_ms, amount_ml, duration_min, weight_g, length_cm, note) VALUES (?,?,?,?,?,?,?,?,?,?)');
+      $st->execute([$BABY, $USER, $type, $kind, (int)$time, $amt, $dur, $wg, $lc, $note]);
     } else {
-      $st = $pdo->prepare('INSERT INTO baby_logs (type, kind, time_ms, amount_ml, duration_min, weight_g, note) VALUES (?,?,?,?,?,?,?)');
-      $st->execute([$type, $kind, (int)$time, $amt, $dur, $wg, $note]);
+      $st = $pdo->prepare('INSERT INTO baby_logs (type, kind, time_ms, amount_ml, duration_min, weight_g, length_cm, note) VALUES (?,?,?,?,?,?,?,?)');
+      $st->execute([$type, $kind, (int)$time, $amt, $dur, $wg, $lc, $note]);
     }
     out(['ok' => true, 'id' => (int)$pdo->lastInsertId()]);
 

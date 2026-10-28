@@ -11,13 +11,14 @@ This repository holds two sites that share one database:
 
 ## Features
 
-- **Logging:** feeds (breast L/R, breast-milk bottle, formula), diapers (wet / dirty / both), pumping (time and ml), weight (kg, or lb + oz in separate boxes; up to 3 decimals, stored in grams). Every entry can be edited or deleted.
+- **Logging:** feeds (breast L/R, breast-milk bottle, formula), diapers (wet / dirty / both), pumping (time and ml), weight (kg, or lb + oz in separate boxes; up to 3 decimals, stored in grams) and length (cm or in). Every entry can be edited or deleted.
 - **Today at a glance:** time since the last feed, feeds and ml today, wet and dirty counts, and time since the last wet or dirty diaper.
 - **Milk record:** the most milk in one day since birth, with a bar showing how today compares.
 - **Charts:** last 7 days, day-to-day change, milk intake, diaper changes, pumping and weight. Ranges run from Today, Yesterday, 3 days, 1 week, 1 month and 3 months to custom dates.
 - **Diaper frequency:** how often any, wet and dirty diapers are changed.
 - **Age and birthday:** shown in the header, for example "1 week, 5 days old · day 13".
 - **Alerts:** an in-page banner when a diaper is overdue (2 h 15 min by default), plus phone notifications through the free [ntfy](https://ntfy.sh) app, run by a cron job.
+- **Growth percentiles:** weight-for-age, length-for-age and weight-for-length percentiles from the WHO Child Growth Standards (which the CDC recommends from birth to age 2), with a chart of the 3rd–97th percentile curves. Informational only, not medical advice.
 - **Free diaper pickups:** track monthly pickups from local programs (Forward, CIP, Good Neighbor or any place you add). Each place shows when you can go again, and a phone reminder arrives on that day.
 - **Design:** a nursery theme with light and dark modes, works on phones, and uses only original SVG illustrations.
 - **babylog only:**

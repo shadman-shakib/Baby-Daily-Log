@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS bl_babies (
   name VARCHAR(60) NOT NULL,
   birth_date DATE NULL,
   birth_time TIME NULL,
+  sex ENUM('F','M') NULL,                      -- for WHO growth percentiles
   ntfy_topic VARCHAR(64) NULL,                  -- phone alerts for this baby (ntfy app)
   diaper_alert_min SMALLINT UNSIGNED NOT NULL DEFAULT 135,
   feed_alert_min SMALLINT UNSIGNED NOT NULL DEFAULT 0,       -- 0 = off
@@ -59,12 +60,13 @@ CREATE TABLE IF NOT EXISTS bl_logs (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   baby_id INT UNSIGNED NOT NULL,
   user_id INT UNSIGNED NULL,               -- who logged it
-  type ENUM('feed','diaper','weight','pump') NOT NULL,
+  type ENUM('feed','diaper','weight','pump','length') NOT NULL,
   kind VARCHAR(20) NOT NULL,
   time_ms BIGINT NOT NULL,                 -- event time, ms since epoch
   amount_ml DECIMAL(6,1) NULL,             -- bottle / formula / pumped
   duration_min DECIMAL(5,1) NULL,          -- breastfeeding / pumping
   weight_g DECIMAL(10,3) NULL,             -- baby weight in grams (3 decimals, so lb/oz entries stay exact)
+  length_cm DECIMAL(6,3) NULL,             -- baby length in cm
   note VARCHAR(200) NOT NULL DEFAULT '',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_baby_time (baby_id, time_ms),

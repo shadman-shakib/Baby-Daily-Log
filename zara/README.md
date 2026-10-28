@@ -11,7 +11,7 @@ A one-baby tracker opened with a shared password, for the parents' phones.
 
 | File | Purpose |
 |---|---|
-| `index.html` | The app UI. The baby's birth date and time are set in the `BIRTH` constant near the top of the script. |
+| `index.html` | The app UI. The baby's birth date and time are set in the `BIRTH` constant near the top of the script, and sex (for growth percentiles) in `SEX`. |
 | `api.php` | Password login, log entries, and free diaper pickups (shared mode only, uses babylog's `bl_supplies`) |
 | `notify.php` | Cron script for ntfy phone alerts. Run `php notify.php test`, or open `notify.php?key=…&test=1`, to send a test alert. |
 | `schema.sql` | Standalone table `baby_logs` |

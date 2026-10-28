@@ -94,7 +94,7 @@ function checkCode(int $userId, string $purpose, $code): bool {
   return true;
 }
 function userByEmail(string $email) { return q('SELECT id, name, email, pass_hash, email_verified, status FROM bl_users WHERE email = ?', [$email])->fetch(); }
-function babyRow(int $bid) { return q('SELECT id, name, birth_date, birth_time, ntfy_topic, diaper_alert_min, feed_alert_min FROM bl_babies WHERE id = ?', [$bid])->fetch(); }
+function babyRow(int $bid) { return q('SELECT id, name, birth_date, birth_time, sex, ntfy_topic, diaper_alert_min, feed_alert_min FROM bl_babies WHERE id = ?', [$bid])->fetch(); }
 
 $FEED = ['breast-l', 'breast-r', 'bottle', 'formula'];
 $DIAPER = ['wet', 'dirty', 'both'];
@@ -196,7 +196,7 @@ switch ($action) {
   case 'me': {
     $u = uid();
     $user = q('SELECT id, name, email FROM bl_users WHERE id = ?', [$u])->fetch();
-    $babies = q('SELECT b.id, b.name, b.birth_date AS birthDate, b.birth_time AS birthTime, b.diaper_alert_min AS diaperAlertMin,
+    $babies = q('SELECT b.id, b.name, b.birth_date AS birthDate, b.birth_time AS birthTime, b.sex, b.diaper_alert_min AS diaperAlertMin,
                         b.feed_alert_min AS feedAlertMin, b.ntfy_topic AS ntfyTopic, b.log_notify AS logNotify, m.role
                  FROM bl_babies b JOIN bl_members m ON m.baby_id = b.id WHERE m.user_id = ? ORDER BY b.created_at', [$u])->fetchAll();
     foreach ($babies as &$x) {
@@ -267,9 +267,10 @@ switch ($action) {
     if ($name === '') fail("Enter the baby's name.", 422);
     $bd = (is_string($b['birthDate'] ?? null) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $b['birthDate'])) ? $b['birthDate'] : null;
     $bt = (is_string($b['birthTime'] ?? null) && preg_match('/^\d{2}:\d{2}$/', $b['birthTime'])) ? $b['birthTime'] : null;
+    $sex = in_array($b['sex'] ?? null, ['F', 'M'], true) ? $b['sex'] : null;
     if ((int)q('SELECT COUNT(*) FROM bl_members WHERE user_id = ?', [$u])->fetchColumn() >= 10) fail('You can follow up to 10 babies.', 422);
     $pdo->beginTransaction();
-    q('INSERT INTO bl_babies (name, birth_date, birth_time) VALUES (?,?,?)', [$name, $bd, $bt]);
+    q('INSERT INTO bl_babies (name, birth_date, birth_time, sex) VALUES (?,?,?,?)', [$name, $bd, $bt, $sex]);
     $bid = (int)$pdo->lastInsertId();
     q("INSERT INTO bl_members (baby_id, user_id, role) VALUES (?,?,'owner')", [$bid, $u]);
     $pdo->commit();
@@ -282,7 +283,8 @@ switch ($action) {
     if ($name === '') fail("Enter the baby's name.", 422);
     $bd = (is_string($b['birthDate'] ?? null) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $b['birthDate'])) ? $b['birthDate'] : null;
     $bt = (is_string($b['birthTime'] ?? null) && preg_match('/^\d{2}:\d{2}$/', $b['birthTime'])) ? $b['birthTime'] : null;
-    q('UPDATE bl_babies SET name = ?, birth_date = ?, birth_time = ? WHERE id = ?', [$name, $bd, $bt, $bid]);
+    $sex = in_array($b['sex'] ?? null, ['F', 'M'], true) ? $b['sex'] : null;
+    q('UPDATE bl_babies SET name = ?, birth_date = ?, birth_time = ?, sex = ? WHERE id = ?', [$name, $bd, $bt, $sex, $bid]);
     out(['ok' => true]);
   }
 
@@ -352,15 +354,16 @@ switch ($action) {
     $u = uid(); $bid = (int)($b['babyId'] ?? 0); member($u, $bid);
     $since = (int)(microtime(true) * 1000) - 100 * 86400000;
     $rows = q('SELECT l.id, l.type, l.kind, l.time_ms AS time, l.amount_ml AS amountMl, l.duration_min AS durationMin,
-                      l.weight_g AS weightG, l.note, u.name AS byName
+                      l.weight_g AS weightG, l.length_cm AS lengthCm, l.note, u.name AS byName
                FROM bl_logs l LEFT JOIN bl_users u ON u.id = l.user_id
-               WHERE l.baby_id = ? AND (? = 1 OR l.time_ms >= ? OR l.type = ?) ORDER BY l.time_ms DESC',
-               [$bid, empty($b['all']) ? 0 : 1, $since, 'weight'])->fetchAll();
+               WHERE l.baby_id = ? AND (? = 1 OR l.time_ms >= ? OR l.type IN (?, ?)) ORDER BY l.time_ms DESC',
+               [$bid, empty($b['all']) ? 0 : 1, $since, 'weight', 'length'])->fetchAll();
     foreach ($rows as &$r) {
       $r['id'] = (int)$r['id']; $r['time'] = (int)$r['time'];
       $r['amountMl'] = $r['amountMl'] !== null ? (float)$r['amountMl'] : null;
       $r['durationMin'] = $r['durationMin'] !== null ? (float)$r['durationMin'] : null;
       $r['weightG'] = $r['weightG'] !== null ? round((float)$r['weightG'], 3) : null;
+      $r['lengthCm'] = $r['lengthCm'] !== null ? round((float)$r['lengthCm'], 3) : null;
     }
     unset($r);
     // Most milk in one day since birth (all history)
@@ -379,7 +382,7 @@ switch ($action) {
     $u = uid(); $bid = (int)($b['babyId'] ?? 0); member($u, $bid);
     $type = $b['type'] ?? ''; $kind = $b['kind'] ?? ''; $time = $b['time'] ?? null;
     $ok = ($type === 'feed' && in_array($kind, $FEED, true)) || ($type === 'diaper' && in_array($kind, $DIAPER, true))
-       || ($type === 'weight' && $kind === 'weight') || ($type === 'pump' && in_array($kind, $PUMP, true));
+       || ($type === 'weight' && $kind === 'weight') || ($type === 'length' && $kind === 'length') || ($type === 'pump' && in_array($kind, $PUMP, true));
     if (!$ok) fail('Invalid type', 422);
     if (!is_numeric($time)) fail('Invalid time', 422);
     $amt = isset($b['amountMl']) && is_numeric($b['amountMl']) && $b['amountMl'] > 0 && $b['amountMl'] < 5000 ? (float)$b['amountMl'] : null;
@@ -387,14 +390,17 @@ switch ($action) {
     $wg = isset($b['weightG']) && is_numeric($b['weightG']) ? round((float)$b['weightG'], 3) : null; // grams, up to 3 decimals
     if ($type === 'weight' && ($wg === null || $wg < 500 || $wg > 30000)) fail('Weight must be between 0.5 and 30 kg', 422);
     if ($type !== 'weight') $wg = null;
+    $lc = isset($b['lengthCm']) && is_numeric($b['lengthCm']) ? round((float)$b['lengthCm'], 3) : null; // cm, up to 3 decimals
+    if ($type === 'length' && ($lc === null || $lc < 30 || $lc > 130)) fail('Length must be between 30 and 130 cm', 422);
+    if ($type !== 'length') $lc = null;
     $note = str($b['note'] ?? '', 200);
     if ($action === 'update') {
-      q('UPDATE bl_logs SET type = ?, kind = ?, time_ms = ?, amount_ml = ?, duration_min = ?, weight_g = ?, note = ? WHERE id = ? AND baby_id = ?',
-        [$type, $kind, (int)$time, $amt, $dur, $wg, $note, (int)($b['id'] ?? 0), $bid]);
+      q('UPDATE bl_logs SET type = ?, kind = ?, time_ms = ?, amount_ml = ?, duration_min = ?, weight_g = ?, length_cm = ?, note = ? WHERE id = ? AND baby_id = ?',
+        [$type, $kind, (int)$time, $amt, $dur, $wg, $lc, $note, (int)($b['id'] ?? 0), $bid]);
       out(['ok' => true]);
     }
-    q('INSERT INTO bl_logs (baby_id, user_id, type, kind, time_ms, amount_ml, duration_min, weight_g, note) VALUES (?,?,?,?,?,?,?,?,?)',
-      [$bid, $u, $type, $kind, (int)$time, $amt, $dur, $wg, $note]);
+    q('INSERT INTO bl_logs (baby_id, user_id, type, kind, time_ms, amount_ml, duration_min, weight_g, length_cm, note) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      [$bid, $u, $type, $kind, (int)$time, $amt, $dur, $wg, $lc, $note]);
     out(['ok' => true, 'id' => (int)$pdo->lastInsertId()]);
   }
 
