@@ -360,7 +360,7 @@ switch ($action) {
       $r['id'] = (int)$r['id']; $r['time'] = (int)$r['time'];
       $r['amountMl'] = $r['amountMl'] !== null ? (float)$r['amountMl'] : null;
       $r['durationMin'] = $r['durationMin'] !== null ? (float)$r['durationMin'] : null;
-      $r['weightG'] = $r['weightG'] !== null ? (int)$r['weightG'] : null;
+      $r['weightG'] = $r['weightG'] !== null ? round((float)$r['weightG'], 3) : null;
     }
     unset($r);
     // Most milk in one day since birth (all history)
@@ -384,7 +384,7 @@ switch ($action) {
     if (!is_numeric($time)) fail('Invalid time', 422);
     $amt = isset($b['amountMl']) && is_numeric($b['amountMl']) && $b['amountMl'] > 0 && $b['amountMl'] < 5000 ? (float)$b['amountMl'] : null;
     $dur = isset($b['durationMin']) && is_numeric($b['durationMin']) && $b['durationMin'] > 0 && $b['durationMin'] < 1000 ? (float)$b['durationMin'] : null;
-    $wg = isset($b['weightG']) && is_numeric($b['weightG']) ? (int)round($b['weightG']) : null;
+    $wg = isset($b['weightG']) && is_numeric($b['weightG']) ? round((float)$b['weightG'], 3) : null; // grams, up to 3 decimals
     if ($type === 'weight' && ($wg === null || $wg < 500 || $wg > 30000)) fail('Weight must be between 0.5 and 30 kg', 422);
     if ($type !== 'weight') $wg = null;
     $note = str($b['note'] ?? '', 200);

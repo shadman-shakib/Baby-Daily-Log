@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS baby_logs (
   time_ms BIGINT NOT NULL,            -- event time, milliseconds since epoch
   amount_ml DECIMAL(6,1) NULL,        -- bottle / formula / pumped
   duration_min DECIMAL(5,1) NULL,     -- breastfeeding / pumping
-  weight_g INT UNSIGNED NULL,         -- baby weight in grams
+  weight_g DECIMAL(10,3) NULL,        -- baby weight in grams (3 decimals)
   note VARCHAR(200) NOT NULL DEFAULT '',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_time (time_ms)

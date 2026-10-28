@@ -50,6 +50,10 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .chip.weight{background:var(--weight-soft);color:var(--weight)}
 .wunit{display:flex;gap:6px;align-items:flex-end}
 .wunit input{flex:1;min-width:0}
+.wunit .sfx{flex:1;min-width:0;position:relative;display:flex}
+.wunit .sfx[hidden]{display:none}
+.wunit .sfx input{width:100%;padding-right:30px}
+.wunit .sfx::after{content:attr(data-u);position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;font-weight:700;pointer-events:none}
 .wunit select{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:9px 8px;font:inherit}
 .qbtn{border:none;border-radius:14px;padding:16px 14px;text-align:left;font-weight:600;font-size:1rem;display:flex;flex-direction:column;gap:2px}
 .qbtn small{font-weight:400;opacity:.8;font-size:.8rem}
@@ -436,7 +440,7 @@ html,body{overflow-x:hidden}
     <div class="row">
       <div class="field"><label class="label" for="when">Time</label><input type="datetime-local" id="when" required></div>
       <div class="field" id="amtField"><label class="label" for="amt">Amount (ml)</label><input type="number" id="amt" min="0" step="5" inputmode="numeric" placeholder="e.g. 60"></div>
-      <div class="field" id="wField"><label class="label" for="wVal">Weight</label><div class="wunit"><input type="number" id="wVal" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 3.45"><select id="wUnitIn" aria-label="Unit"><option value="kg">kg</option><option value="lb">lb</option></select></div></div>
+      <div class="field" id="wField"><label class="label" for="wVal">Weight</label><div class="wunit"><input type="number" id="wVal" min="0" step="0.001" inputmode="decimal" placeholder="e.g. 3.452"><span class="sfx" data-u="lb" id="wLbBox" hidden><input type="number" id="wLb" min="0" step="1" inputmode="numeric" placeholder="7" aria-label="Pounds"></span><span class="sfx" data-u="oz" id="wOzBox" hidden><input type="number" id="wOz" min="0" max="15.999" step="0.001" inputmode="decimal" placeholder="4.125" aria-label="Ounces"></span><select id="wUnitIn" aria-label="Unit"><option value="kg">kg</option><option value="lb">lb + oz</option></select></div></div>
       <div class="field" id="durField"><label class="label" for="dur">Duration (min)</label><input type="number" id="dur" min="0" step="1" inputmode="numeric" placeholder="e.g. 15"></div>
     </div>
     <div class="field"><label class="label" for="note">Note</label><input type="text" id="note" maxlength="200" placeholder="Optional"></div>
@@ -610,7 +614,16 @@ const LB=453.59237;
 const BIRTH="2026-10-05T02:27"; // Zara's birth date and time
 const DIAPER_ALERT_MIN=135;     // warn after 2 h 15 min without a diaper change
 let wUnit="kg";try{wUnit=localStorage.getItem("zaraWUnit")||"kg"}catch(e){}
-const fmtW=g=>wUnit==="kg"?(g/1000).toFixed(2)+" kg":(()=>{const lb=g/LB;const w=Math.floor(lb);const oz=(lb-w)*16;return `${w} lb ${oz.toFixed(1)} oz`})();
+const n3=v=>String(+(+v).toFixed(3)); // up to 3 decimals, no trailing zeros
+const toLbOz=g=>{let lb=Math.floor(g/LB),oz=+((g/LB-lb)*16).toFixed(3);if(oz>=16){lb++;oz=0}return [lb,oz]};
+const fmtW=g=>wUnit==="kg"?n3(g/1000)+" kg":(()=>{const [lb,oz]=toLbOz(g);return `${lb} lb ${n3(oz)} oz`})();
+function wShow(u){const lb=u==="lb";$("wVal").hidden=lb;$("wLbBox").hidden=!lb;$("wOzBox").hidden=!lb}
+let wExact=null; // exact grams behind the filled-in fields, so switching units doesn't round
+const wKey=()=>[$("wVal").value,$("wLb").value,$("wOz").value].join("|");
+function wGrams(){if(wExact&&wExact.k===wKey())return wExact.g;if($("wUnitIn").value==="kg"){const v=parseFloat($("wVal").value);return v>0?v*1000:NaN}
+  const lb=parseFloat($("wLb").value),oz=parseFloat($("wOz").value);if(!(lb>0)&&!(oz>0))return NaN;
+  return (lb>0?lb:0)*LB+(oz>0?oz:0)*LB/16}
+function wFill(g){$("wVal").value=g?n3(g/1000):"";if(g){const [lb,oz]=toLbOz(g);$("wLb").value=lb;$("wOz").value=n3(oz)}else{$("wLb").value="";$("wOz").value=""}wExact=g?{g,k:wKey()}:null}
 let logs=[], mode="feed", kind="breast-l", dayOffset=0, loaded=false;
 
 async function api(action,body){
@@ -656,12 +669,12 @@ function openForm(m,e){
   const what=m==="feed"?"feed":m==="diaper"?"diaper change":m==="pump"?"pumping":"weight";
   $("formTitle").textContent=(e?"Edit ":"Log ")+(m==="feed"||m==="diaper"?(e?"":"a ")+what:what);
   $("save").textContent=e?"Save changes":"Save";
-  $("wUnitIn").value=wUnit;
-  $("wVal").value=e&&e.weightG?(wUnit==="kg"?(e.weightG/1000).toFixed(2):(e.weightG/LB).toFixed(2)):"";
+  $("wUnitIn").value=wUnit;wShow(wUnit);wFill(e&&e.weightG?e.weightG:0);
   $("when").value=toLocalInput(e?new Date(e.time):new Date());
   $("amt").value=e&&e.amountMl?e.amountMl:"";$("dur").value=e&&e.durationMin?e.durationMin:"";$("note").value=e?e.note||"":"";
   setSeg();$("form").hidden=false;$("form").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
+$("wUnitIn").onchange=()=>{const u=$("wUnitIn").value;$("wUnitIn").value=u==="kg"?"lb":"kg";const g=wGrams();$("wUnitIn").value=u;wShow(u);if(g>0)wFill(g)};
 $("openFeed").onclick=()=>openForm("feed");
 $("openDiaper").onclick=()=>openForm("diaper");
 $("openWeight").onclick=()=>openForm("weight");
@@ -680,9 +693,11 @@ $("form").addEventListener("submit",async e=>{
   if(mode==="pump"){const d=parseFloat($("dur").value),a=parseFloat($("amt").value);
     if(!(d>0)&&!(a>0)){notice("Enter the pumping time or amount.");return}
     if(d>0)rec.durationMin=d;if(a>0)rec.amountMl=a}
-  if(mode==="weight"){const v=parseFloat($("wVal").value);
-    if(!(v>0)){notice("Enter a weight.");return}
-    rec.weightG=Math.round($("wUnitIn").value==="kg"?v*1000:v*LB);
+  if(mode==="weight"){
+    if($("wUnitIn").value==="lb"&&parseFloat($("wOz").value)>=16){notice("Ounces must be less than 16.");return}
+    const g=wGrams();
+    if(!(g>0)){notice("Enter a weight.");return}
+    rec.weightG=Math.round(g*1000)/1000;
     if(rec.weightG<500||rec.weightG>30000){notice("That weight looks wrong. Check the number and unit.");return}}
   $("save").disabled=true;
   try{if(editId){rec.id=editId;await api("update",rec)}else{await api("add",rec);dayOffset=0}
@@ -850,7 +865,7 @@ function renderWeight(){
   const stat=(label,v)=>`<div class="mstat"><span class="label">${label}</span><span class="v num" style="font-size:1.15rem">${v}</span></div>`;
   if(!ws.length){$("wstats").innerHTML="";$("weightChart").innerHTML=`<p class="empty">No weights yet. Tap + Weight to add her birth weight and each check-up.</p>`;return}
   const first=ws[0],last=ws[ws.length-1],diff=last.weightG-first.weightG;
-  const dstr=(diff>=0?"+":"−")+(wUnit==="kg"?(Math.abs(diff)/1000).toFixed(2)+" kg":(Math.abs(diff)/LB*16).toFixed(1)+" oz");
+  const dstr=(diff>=0?"+":"−")+(wUnit==="kg"?n3(Math.abs(diff)/1000)+" kg":n3(Math.abs(diff)/LB*16)+" oz");
   const fmtD=t=>new Date(t).toLocaleDateString([], {month:"short",day:"numeric"});
   $("wstats").innerHTML=stat("Latest",fmtW(last.weightG))+stat("Measured",fmtD(last.time))+(ws.length>1?stat("Change since "+fmtD(first.time),dstr):"");
   const toU=g=>wUnit==="kg"?g/1000:g/LB;
@@ -866,7 +881,7 @@ function renderWeight(){
     svg+=`<text x="${n===1?X(t):L+iw*i/(n-1)}" y="${H-8}" text-anchor="${n===1?"middle":i===0?"start":i===n-1?"end":"middle"}" font-size="11" fill="var(--muted)">${fmtD(t)}</text>`}
   if(ws.length>1)svg+=`<path d="${ws.map((w,i)=>(i?"L":"M")+X(w.time).toFixed(1)+" "+Y(vals[i]).toFixed(1)).join(" ")}" fill="none" stroke="var(--weight)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   ws.forEach((w,i)=>{const isLast=i===ws.length-1;svg+=`<circle cx="${X(w.time)}" cy="${Y(vals[i])}" r="${isLast?5:3.5}" fill="${isLast?"var(--weight)":"var(--surface)"}" stroke="var(--weight)" stroke-width="2"/>`});
-  const lx=X(last.time);svg+=`<text x="${lx}" y="${Y(vals[vals.length-1])-10}" text-anchor="${lx>W-80?"end":"middle"}" font-size="12" font-weight="600" fill="var(--fg)" font-family="var(--mono)">${vals[vals.length-1].toFixed(wUnit==="kg"?2:1)}</text>`;
+  const lx=X(last.time);svg+=`<text x="${lx}" y="${Y(vals[vals.length-1])-10}" text-anchor="${lx>W-80?"end":"middle"}" font-size="12" font-weight="600" fill="var(--fg)" font-family="var(--mono)">${n3(vals[vals.length-1])}</text>`;
   $("weightChart").innerHTML=svg+"</svg>";
 }
 

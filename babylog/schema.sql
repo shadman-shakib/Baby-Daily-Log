@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS bl_logs (
   time_ms BIGINT NOT NULL,                 -- event time, ms since epoch
   amount_ml DECIMAL(6,1) NULL,             -- bottle / formula / pumped
   duration_min DECIMAL(5,1) NULL,          -- breastfeeding / pumping
-  weight_g INT UNSIGNED NULL,              -- baby weight in grams
+  weight_g DECIMAL(10,3) NULL,             -- baby weight in grams (3 decimals, so lb/oz entries stay exact)
   note VARCHAR(200) NOT NULL DEFAULT '',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_baby_time (baby_id, time_ms),
