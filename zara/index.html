@@ -278,6 +278,28 @@ html,body{overflow-x:hidden}
 @keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
 @keyframes fsway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
 @keyframes grassdrift{from{background-position:0 bottom}to{background-position:60px bottom}}
+
+/* ---- Dino parade across the header ---- */
+.parade{position:absolute!important;z-index:0!important;bottom:6px;left:18px;width:190px;pointer-events:none}
+.parade svg{display:block;width:100%;height:auto}
+@media (max-width:560px){.parade{width:160px;bottom:4px}}
+@media (prefers-reduced-motion:no-preference){
+  .parade{animation:parade 30s linear infinite}
+  .parade .step{animation:step .5s ease-in-out infinite}
+  .parade .b1 .step,.parade .b2 .step,.parade .b3 .step{animation-duration:.36s}
+  .parade .b2 .step{animation-delay:-.12s}.parade .b3 .step{animation-delay:-.24s}
+  .parade .leg{transform-box:fill-box;transform-origin:50% 10%;animation:legA .5s ease-in-out infinite}
+  .parade .lb{animation-name:legB}
+  .parade .b1 .leg,.parade .b2 .leg,.parade .b3 .leg{animation-duration:.36s}
+  .parade .tail{transform-box:fill-box;transform-origin:100% 85%;animation:wag 1s ease-in-out infinite}
+  .parade .head{transform-box:fill-box;transform-origin:30% 95%;animation:nod 2s ease-in-out infinite}
+  .parade .blink{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+  .parade .b2 .blink{animation-delay:-1.3s}.parade .b3 .blink{animation-delay:-2.6s}
+}
+@keyframes parade{from{left:-200px}to{left:100%}}
+@keyframes step{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes legA{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(20deg)}}
+@keyframes legB{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}}
 </style>
 </head>
 <body>
@@ -376,6 +398,7 @@ html,body{overflow-x:hidden}
   </section>
   <div id="app" style="display:contents" hidden>
   <header class="topbar">
+    <div class="parade" aria-hidden="true"><svg viewBox="0 0 220 62"><g transform="translate(20 40.5) scale(0.5)"><g class="walker b3"><g class="leg la"><rect x="-6" y="28" width="7" height="11" rx="3" fill="#f0bb3a"/></g><g class="step"><g class="tail"><path d="M-8 22q-14 2-18-14q10 9 20 6z" fill="#ffd86e"/></g><ellipse cx="6" cy="20" rx="22" ry="15" fill="#ffd86e"/><path d="M-8 9l4-9 5 8M2 6l5-9 5 8M13 7l5-8 3 9" fill="#f0bb3a"/><ellipse cx="24" cy="10" rx="9" ry="11" fill="#ffd86e"/><g class="head"><circle cx="31" cy="-2" r="13" fill="#ffd86e"/><g class="blink"><circle cx="35" cy="-5" r="2.4" fill="#2b2540"/><circle cx="35.8" cy="-5.8" r=".8" fill="#fff"/></g><circle cx="39" cy="1" r="3" fill="#ffb3c7" opacity=".8"/><path d="M33 3q4 3 8 0" stroke="#2b2540" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M18 -12l4 -7 4 6 4 -7 4 6 4 -7 3 8q-12 6-27 1z" fill="#fff" stroke="#e3dcf2" stroke-width="1"/></g><ellipse cx="6" cy="22" rx="12" ry="7" fill="#fff1c4" opacity=".75"/></g><g class="leg lb"><rect x="10" y="28" width="7" height="11" rx="3" fill="#f0bb3a"/></g></g></g><g transform="translate(66 40.5) scale(0.5)"><g class="walker b2"><g class="leg la"><rect x="-6" y="28" width="7" height="11" rx="3" fill="#f28bb3"/></g><g class="step"><g class="tail"><path d="M-8 22q-14 2-18-14q10 9 20 6z" fill="#ffb3d1"/></g><ellipse cx="6" cy="20" rx="22" ry="15" fill="#ffb3d1"/><path d="M-8 9l4-9 5 8M2 6l5-9 5 8M13 7l5-8 3 9" fill="#f28bb3"/><ellipse cx="24" cy="10" rx="9" ry="11" fill="#ffb3d1"/><g class="head"><circle cx="31" cy="-2" r="13" fill="#ffb3d1"/><g class="blink"><circle cx="35" cy="-5" r="2.4" fill="#2b2540"/><circle cx="35.8" cy="-5.8" r=".8" fill="#fff"/></g><circle cx="39" cy="1" r="3" fill="#ffb3c7" opacity=".8"/><path d="M33 3q4 3 8 0" stroke="#2b2540" stroke-width="1.4" fill="none" stroke-linecap="round"/></g><ellipse cx="6" cy="22" rx="12" ry="7" fill="#ffe0ec" opacity=".75"/></g><g class="leg lb"><rect x="10" y="28" width="7" height="11" rx="3" fill="#f28bb3"/></g></g></g><g transform="translate(112 40.5) scale(0.5)"><g class="walker b1"><g class="leg la"><rect x="-6" y="28" width="7" height="11" rx="3" fill="#6fb4ea"/></g><g class="step"><g class="tail"><path d="M-8 22q-14 2-18-14q10 9 20 6z" fill="#9cd2ff"/></g><ellipse cx="6" cy="20" rx="22" ry="15" fill="#9cd2ff"/><path d="M-8 9l4-9 5 8M2 6l5-9 5 8M13 7l5-8 3 9" fill="#6fb4ea"/><ellipse cx="24" cy="10" rx="9" ry="11" fill="#9cd2ff"/><g class="head"><circle cx="31" cy="-2" r="13" fill="#9cd2ff"/><g class="blink"><circle cx="35" cy="-5" r="2.4" fill="#2b2540"/><circle cx="35.8" cy="-5.8" r=".8" fill="#fff"/></g><circle cx="39" cy="1" r="3" fill="#ffb3c7" opacity=".8"/><path d="M33 3q4 3 8 0" stroke="#2b2540" stroke-width="1.4" fill="none" stroke-linecap="round"/></g><ellipse cx="6" cy="22" rx="12" ry="7" fill="#d6ecff" opacity=".75"/></g><g class="leg lb"><rect x="10" y="28" width="7" height="11" rx="3" fill="#6fb4ea"/></g></g></g><g transform="translate(170 21) scale(0.98)"><g class="walker mom"><g class="leg la"><rect x="-6" y="28" width="7" height="11" rx="3" fill="#6cc796"/></g><g class="step"><g class="tail"><path d="M-8 22q-14 2-18-14q10 9 20 6z" fill="#7fd6a6"/></g><ellipse cx="6" cy="20" rx="22" ry="15" fill="#7fd6a6"/><path d="M-8 9l4-9 5 8M2 6l5-9 5 8M13 7l5-8 3 9" fill="#5fbf8b"/><ellipse cx="24" cy="10" rx="9" ry="11" fill="#7fd6a6"/><g class="head"><circle cx="31" cy="-2" r="13" fill="#7fd6a6"/><g class="blink"><circle cx="35" cy="-5" r="2.4" fill="#2b2540"/><circle cx="35.8" cy="-5.8" r=".8" fill="#fff"/></g><circle cx="39" cy="1" r="3" fill="#ffb3c7" opacity=".8"/><path d="M33 3q4 3 8 0" stroke="#2b2540" stroke-width="1.4" fill="none" stroke-linecap="round"/></g><ellipse cx="6" cy="22" rx="12" ry="7" fill="#b5f0cd" opacity=".75"/></g><g class="leg lb"><rect x="10" y="28" width="7" height="11" rx="3" fill="#6cc796"/></g></g></g></svg></div>
     <svg class="hero-art" viewBox="0 0 230 150" aria-hidden="true">
       <g class="hb-bunch">
         <path d="M152 50q-6 30 8 92M174 54q2 36-12 88M130 60q12 34 30 82" stroke="var(--muted)" stroke-width="1" fill="none" opacity=".45"/>
@@ -385,12 +408,6 @@ html,body{overflow-x:hidden}
       </g>
       <g class="hfly"><g transform="translate(206 22) rotate(-12)"><g class="flap"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#c9a8ff"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#c9a8ff"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffb3d1"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffb3d1"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/><path d="M-1 -8q-3-5-6-6M1 -8q3-5 6-6" stroke="#5b4a86" stroke-width="1" fill="none"/></g></g></g>
       <path d="M8 150h222v-12q-20-8-40 0-22-9-44 0-22-8-46 0-22-9-46 0-24-8-46 0z" fill="#bfe8c9"/>
-      <g transform="translate(36 112)"><g class="dino">
-        <g class="tail"><path d="M-8 22q-14 2-18-14q10 9 20 6z" fill="#7fd6a6"/></g>
-        <ellipse cx="6" cy="20" rx="22" ry="15" fill="#7fd6a6"/><path d="M-8 9l4-9 5 8M2 6l5-9 5 8M13 7l5-8 3 9" fill="#5fbf8b"/><ellipse cx="24" cy="10" rx="9" ry="11" fill="#7fd6a6"/>
-        <g class="head"><circle cx="31" cy="-2" r="13" fill="#7fd6a6"/><g class="blink"><circle cx="35" cy="-5" r="2.4" fill="#2b2540"/><circle cx="35.8" cy="-5.8" r=".8" fill="#fff"/></g><circle cx="39" cy="1" r="3" fill="#ffb3c7" opacity=".8"/><path d="M33 3q4 3 8 0" stroke="#2b2540" stroke-width="1.4" fill="none" stroke-linecap="round"/></g>
-        <rect x="-6" y="30" width="7" height="9" rx="3" fill="#6cc796"/><rect x="10" y="30" width="7" height="9" rx="3" fill="#6cc796"/><ellipse cx="6" cy="22" rx="12" ry="7" fill="#b5f0cd" opacity=".7"/>
-      </g></g>
       <g transform="translate(118 132)"><g class="fl"><circle cx="0" cy="-6" r="4" fill="#ffa3bd"/><circle cx="6" cy="-1" r="4" fill="#ffa3bd"/><circle cx="-6" cy="-1" r="4" fill="#ffa3bd"/><circle cx="3" cy="5" r="4" fill="#ffa3bd"/><circle cx="-3" cy="5" r="4" fill="#ffa3bd"/><circle r="3" fill="#ffd86e"/></g></g>
       <g transform="translate(196 134) scale(.85)"><g class="fl fl2"><circle cx="0" cy="-6" r="4" fill="#c9a8ff"/><circle cx="6" cy="-1" r="4" fill="#c9a8ff"/><circle cx="-6" cy="-1" r="4" fill="#c9a8ff"/><circle cx="3" cy="5" r="4" fill="#c9a8ff"/><circle cx="-3" cy="5" r="4" fill="#c9a8ff"/><circle r="3" fill="#ffd86e"/></g></g>
       <g fill="var(--star)"><path class="tw" d="M100 14l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z"/><circle class="tw t2" cx="214" cy="60" r="2"/><circle class="tw t3" cx="92" cy="48" r="1.6"/><circle class="tw t2" cx="60" cy="30" r="1.4"/><path class="tw t3" d="M200 92l1.4 3.2 3.2 1.4-3.2 1.4-1.4 3.2-1.4-3.2-3.2-1.4 3.2-1.4z"/></g>
