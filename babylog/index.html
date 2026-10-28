@@ -304,7 +304,11 @@ html,body{overflow-x:hidden}
 @keyframes nod{0%,100%{transform:rotate(0)}30%{transform:rotate(-7deg)}60%{transform:rotate(4deg)}}
 @keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
 @keyframes fsway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
-@keyframes grassdrift{from{background-position:0 bottom}to{background-position:60px bottom}}
+@keyframes grassdrift{from{transform:translateX(0)}to{transform:translateX(-60px)}}
+/* header grass: one long seamless strip (tiles showed seams on iPhone) */
+.topbar{contain:paint}
+.topbar::before{left:0;right:auto;width:1320px;bottom:-1px;height:17px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1320 17' preserveAspectRatio='none'%3E%3Cpath d='M0 17V8q15-8 30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0V17z' fill='%23bfe8c9'/%3E%3C/svg%3E") no-repeat left bottom/1320px 17px;backface-visibility:hidden}
+
 
 /* ---- Dino parade across the header ---- */
 .parade{position:absolute!important;z-index:0!important;bottom:6px;left:18px;width:190px;pointer-events:none}
