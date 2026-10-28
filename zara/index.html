@@ -171,6 +171,8 @@ body.famview #app>:not(.topbar):not(#family){display:none!important}
 @media (min-width:1100px){
   .side{display:block;position:fixed;bottom:0;height:100vh;width:calc((100vw - 720px)/2 - 4px);z-index:0;pointer-events:none}
   .side{overflow:visible}
+  .garden{display:none}
+  .wrap{padding-bottom:110px}
   .side.l{left:0}
   .side.r{right:0}
   .wrap{position:relative;z-index:1}
@@ -278,7 +280,7 @@ html,body{overflow-x:hidden}
   <g transform="translate(36 556) scale(0.55)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)"/></g><g transform="translate(184 556) scale(0.55)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)"/></g>
   <g transform="translate(52 470) rotate(10) scale(0.8)"><g class="flap"><ellipse cx="-7" cy="-4" rx="8" ry="6" fill="#ffd86e"/><ellipse cx="7" cy="-4" rx="8" ry="6" fill="#ffd86e"/><ellipse cx="-5" cy="5" rx="5" ry="4" fill="#ffa3bd"/><ellipse cx="5" cy="5" rx="5" ry="4" fill="#ffa3bd"/><rect x="-1.4" y="-8" width="2.8" height="16" rx="1.4" fill="#5b4a86"/></g></g>
   <path class="tw" d="M225 499l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z" fill="var(--star)"/><path class="tw" d="M30 615l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="#c9a8ff"/>
-  <path d="M-400 820V772q37.5-16 75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0v48z" fill="#bfe8c9"/><path d="M-400 820v-30q46.875-12 93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0v30z" fill="#a8dfb8"/>
+  <!-- one ground strip, edge to edge (wide screens) --><path d="M-400 820V772q37.5-16 75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0v48z" fill="#bfe8c9"/><path d="M-400 820v-30q46.875-12 93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0v30z" fill="#a8dfb8"/>
   <g transform="translate(118 712)">
     <ellipse cx="-12" cy="-74" rx="9" ry="27" fill="#fff" stroke="#e3dcf2" stroke-width="1.5"/><ellipse cx="-12" cy="-72" rx="4" ry="18" fill="#ffc6d6"/>
     <ellipse cx="12" cy="-76" rx="9" ry="27" fill="#fff" stroke="#e3dcf2" stroke-width="1.5" transform="rotate(10 12 -76)"/><ellipse cx="12" cy="-74" rx="4" ry="18" fill="#ffc6d6" transform="rotate(10 12 -74)"/>
@@ -322,7 +324,7 @@ html,body{overflow-x:hidden}
   <g transform="translate(150 600) scale(0.6)"><path d="M0 30a15 15 0 0 1 14-15 20 20 0 0 1 38-4 14 14 0 0 1 22 13 12 12 0 0 1-2 24H12A12 12 0 0 1 0 30z" fill="var(--cloud)"/></g>
   <path class="heart h1" d="M186 670c-7-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12z" fill="#ffa3bd"/><path class="heart h2" d="M205 646c-7-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12z" fill="#c9a8ff"/><path class="heart h3" d="M190 622c-7-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7-10 12z" fill="#ffd86e"/>
   <path class="tw" d="M225 414l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8z" fill="#ffd86e"/><path class="tw" d="M30 515l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z" fill="#c9a8ff"/>
-  <path d="M-110 820V772q37.5-16 75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0t75 0v48z" fill="#bfe8c9"/><path d="M-110 820v-30q46.875-12 93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0t93.75 0v30z" fill="#a8dfb8"/>
+  
   <g transform="translate(120 724)">
     <path d="M-42 6q-12-4-14 6" stroke="#b9a4ea" stroke-width="3" fill="none" stroke-linecap="round"/>
     <ellipse cx="0" cy="8" rx="44" ry="34" fill="#c9b8ef"/>
